@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        kotlinVersion = '1.4.32'
+        kotlinVersion = '1.6.0'
         springBootVersion = '2.4.4'
         jacksonVersion = '2.12.2'
     }
@@ -19,6 +19,17 @@ buildscript {
 
     }
 }
+buildscript {
+    configurations['classpath'].resolutionStrategy.eachDependency {
+        if (requested.group == 'org.jooq') {
+            useVersion '3.14.8'
+        }
+    }
+}
+
+plugins {
+    id 'nu.studer.jooq' version '6.0.1'
+}
 
 apply plugin: 'kotlin'
 apply plugin: 'kotlin-spring'
@@ -34,19 +45,75 @@ repositories {
     jcenter()
 }
 
+
 dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
-  	implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation "org.joinfaces:primefaces-spring-boot-starter:4.3.12"
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation "org.joinfaces:primefaces-spring-boot-starter:4.6.8"
+    implementation 'org.springframework.boot:spring-boot-starter-jooq'
     implementation "javax.enterprise:cdi-api:1.2"
+    compileOnly 'javax.ejb:ejb-api:3.0'
     implementation group: 'org.jetbrains.exposed', name: 'exposed-core', version: '0.38.2'
     runtimeOnly group: 'org.jetbrains.exposed', name: 'exposed-jdbc', version: '0.38.2'
     implementation group: 'org.jetbrains.exposed', name: 'exposed-dao', version: '0.38.2'
-    implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '3.0.5'
+    implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.7.5'
     implementation 'io.github.microutils:kotlin-logging-jvm:2.1.20'
     implementation 'at.favre.lib:bcrypt:0.9.0'
+    implementation 'com.github.adminfaces:admin-theme:1.0.0'
+    implementation 'org.reflections:reflections:0.10.2'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.5.21'
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.0.5'
+
+    jooqGenerator 'org.mariadb.jdbc:mariadb-java-client:3.0.5'
+    implementation 'org.jooq:jooq-meta:3.14.8'
+
+
 }
+
+
+import nu.studer.gradle.jooq.JooqEdition
+import org.jooq.meta.jaxb.Logging
+
+
+jooq {
+    // use jOOQ version defined in Spring Boot
+    version = dependencyManagement.importedProperties['jooq.version']
+    edition = JooqEdition.OSS
+
+    configurations {
+        main {
+            generationTool {
+                logging = Logging.WARN
+                jdbc {
+                    driver = "org.mariadb.jdbc.Driver"
+                    url = "jdbc:mariadb://localhost:3306/zeroeight"
+                    user = "root"
+                    password = ""
+                }
+                generator {
+                    name = "org.jooq.codegen.KotlinGenerator"
+                    database {
+                        name = "org.jooq.meta.mariadb.MariaDBDatabase"
+                        inputSchema = "zeroeight"
+                    }
+                    target {
+                        packageName = "z8.gctrl.jooq"
+                    }
+                    generate {
+                        deprecated = false
+                        records = true
+                        immutablePojos = true
+                        fluentSetters = true
+                    }
+
+                    strategy.name = 'org.jooq.codegen.DefaultGeneratorStrategy'
+                }
+            }
+        }
+    }
+}
+
 
 compileKotlin {
     kotlinOptions {

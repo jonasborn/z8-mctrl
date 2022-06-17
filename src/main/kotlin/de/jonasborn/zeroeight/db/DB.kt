@@ -1,11 +1,20 @@
-package de.jonasborn.zeroeight
+package de.jonasborn.zeroeight.db
 
-import de.jonasborn.zeroeight.data.money.Deposits
+import de.jonasborn.zeroeight.config.Config
+import de.jonasborn.zeroeight.data.UserActions
+import de.jonasborn.zeroeight.data.UserTable
+import de.jonasborn.zeroeight.data.device.DeviceTable
+import de.jonasborn.zeroeight.data.money.DepositTable
+import de.jonasborn.zeroeight.data.money.PaymentTable
+import de.jonasborn.zeroeight.data.money.PayoutTable
+import de.jonasborn.zeroeight.data.token.TokenActionTable
+import de.jonasborn.zeroeight.data.token.TokenTable
 import mu.KotlinLogging
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import kotlin.system.exitProcess
+
 
 private val log = KotlinLogging.logger {}
 class DB {
@@ -21,8 +30,19 @@ class DB {
                     password = Config.string("database.password", "")
                 )
                 log.info { "Database connected" }
+
+
                 transaction {
-                    SchemaUtils.create(Deposits)
+                    SchemaUtils.create(
+                        DeviceTable,
+                        DepositTable,
+                        PaymentTable,
+                        PayoutTable,
+                        TokenActionTable,
+                        TokenTable,
+                        UserActions,
+                        UserTable
+                    )
                 }
             } catch (e: Exception) {
                 log.error { "Unable to connect to database" }

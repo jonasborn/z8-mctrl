@@ -1,6 +1,7 @@
 package example.controller;
 
-import javax.inject.Named;
+import javax.inject.Named
+
 
 @Named
 class Welcome {

@@ -1,4 +1,4 @@
-package de.jonasborn.zeroeight
+package de.jonasborn.zeroeight.config
 
 import mu.KotlinLogging
 import java.io.File
