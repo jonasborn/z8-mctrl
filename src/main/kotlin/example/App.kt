@@ -12,6 +12,7 @@ import org.jooq.DSLContext
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Import
 import z8.gctrl.jooq.tables.references.DEVICE
@@ -20,23 +21,14 @@ import java.sql.DriverManager
 import java.util.*
 import kotlin.system.exitProcess
 
-
-@SpringBootApplication
+//TODO https://stackoverflow.com/questions/51221777/failed-to-configure-a-datasource-url-attribute-is-not-specified-and-no-embedd
+@SpringBootApplication(exclude = [DataSourceAutoConfiguration::class])
 @Import(CustomServletContextInitializer::class)
 class App
 
 fun main(args: Array<String>) {
     DB.init()
 
-    val c = DriverManager.getConnection("jdbc:mariadb://localhost:3306/zeroeight?user=root")
-    val context: DSLContext = DSL.using(c, SQLDialect.MARIADB)
-
-    context.select(DEVICE.ID).where(
-        DEVICE.ID.eq(ByteArray(2))
-    )
-
-
-    exitProcess(1)
 
     runApplication<App>(*args)
 }
