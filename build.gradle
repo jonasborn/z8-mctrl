@@ -106,7 +106,7 @@ jooq {
                         inputSchema = "zeroeight"
                     }
                     target {
-                        packageName = "z8.gctrl.jooq"
+                        packageName = "z8.mctrl.jooq"
                     }
                     generate {
                         deprecated = false
