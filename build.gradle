@@ -21,6 +21,7 @@ buildscript {
 
     }
 }
+
 buildscript {
     configurations['classpath'].resolutionStrategy.eachDependency {
         if (requested.group == 'org.jooq') {
@@ -39,8 +40,11 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'com.github.ben-manes.versions'
 
-group = 'com.hceris'
+group = 'z8.mctrl'
 sourceCompatibility = '1.8'
+
+def props = new Properties()
+props.load(new FileReader("z8-mctrl.properties"))
 
 repositories {
     mavenCentral()
@@ -51,13 +55,13 @@ repositories {
 dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
-    implementation ('org.springframework.boot:spring-boot-starter-web') {
+    implementation('org.springframework.boot:spring-boot-starter-web') {
         exclude(group: "org.springframework.boot", module: "spring-boot-starter-logging")
     }
-    implementation ("org.joinfaces:primefaces-spring-boot-starter:4.6.8") {
+    implementation("org.joinfaces:primefaces-spring-boot-starter:4.6.8") {
         exclude(group: "org.springframework.boot", module: "spring-boot-starter-logging")
     }
-    implementation ('org.springframework.boot:spring-boot-starter-jooq') {
+    implementation('org.springframework.boot:spring-boot-starter-jooq') {
         exclude(group: "org.springframework.boot", module: "spring-boot-starter-logging")
     }
     implementation "javax.enterprise:cdi-api:1.2"
@@ -94,16 +98,18 @@ jooq {
             generationTool {
                 logging = Logging.WARN
                 jdbc {
-                    driver = "org.mariadb.jdbc.Driver"
-                    url = "jdbc:mariadb://localhost:3306/zeroeight"
-                    user = "root"
-                    password = ""
+                    driver = props.get("database.build.driver") as String
+                    url = (props.get("database.driver", "jdbc:mariadb") as String) + "://" +
+                            (props.get("database.host", "localhost") as String) + ":" +
+                            (props.get("database.port", 3306) as String) + "/"
+                    user = props.get("database.user") as String
+                    password = props.get("database.password") as String
                 }
                 generator {
                     name = "org.jooq.codegen.KotlinGenerator"
                     database {
-                        name = "org.jooq.meta.mariadb.MariaDBDatabase"
-                        inputSchema = "zeroeight"
+                        name = props.get("database.build.jooq.driver") as String
+                        inputSchema = props.get("database.name") as String
                     }
                     target {
                         packageName = "z8.mctrl.jooq"

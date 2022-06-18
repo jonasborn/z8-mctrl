@@ -54,7 +54,7 @@ class DB {
                     Config.string("database.password", "")
                 )
 
-                val database = Config.string("database.database", "z8")
+                val database = Config.string("database.name", "z8")
                 var sm =
                     connection!!.prepareStatement("CREATE DATABASE IF NOT EXISTS $database DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;")
                 sm.executeQuery()

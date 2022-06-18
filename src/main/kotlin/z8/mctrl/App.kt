@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Import
+import z8.mctrl.config.Config
 import z8.mctrl.data.money.DepositTable
 import z8.mctrl.data.money.Operator
 import z8.mctrl.data.money.PaymentTable
@@ -23,7 +24,9 @@ class App
 
 fun main(args: Array<String>) {
 
-    Configurator.setRootLevel(Level.DEBUG)
+    Configurator.setRootLevel(
+        Level.getLevel(Config.get("logging.level"))
+    )
 
     DB.init()
     DB.createStructure(true)
