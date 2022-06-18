@@ -12,7 +12,9 @@ buildscript {
         }
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}") {
+            exclude(group: "org.springframework.boot", module: "spring-boot-starter-logging")
+        }
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
         classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
         classpath "com.github.ben-manes:gradle-versions-plugin:0.36.0"
@@ -49,9 +51,15 @@ repositories {
 dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation "org.joinfaces:primefaces-spring-boot-starter:4.6.8"
-    implementation 'org.springframework.boot:spring-boot-starter-jooq'
+    implementation ('org.springframework.boot:spring-boot-starter-web') {
+        exclude(group: "org.springframework.boot", module: "spring-boot-starter-logging")
+    }
+    implementation ("org.joinfaces:primefaces-spring-boot-starter:4.6.8") {
+        exclude(group: "org.springframework.boot", module: "spring-boot-starter-logging")
+    }
+    implementation ('org.springframework.boot:spring-boot-starter-jooq') {
+        exclude(group: "org.springframework.boot", module: "spring-boot-starter-logging")
+    }
     implementation "javax.enterprise:cdi-api:1.2"
     compileOnly 'javax.ejb:ejb-api:3.0'
     implementation group: 'org.jetbrains.exposed', name: 'exposed-core', version: '0.38.2'
@@ -64,10 +72,10 @@ dependencies {
     implementation 'org.reflections:reflections:0.10.2'
     implementation 'org.jetbrains.kotlin:kotlin-reflect:1.5.21'
     implementation 'org.mariadb.jdbc:mariadb-java-client:3.0.5'
-
     jooqGenerator 'org.mariadb.jdbc:mariadb-java-client:3.0.5'
     implementation 'org.jooq:jooq-meta:3.14.8'
-
+    implementation "org.springframework.boot:spring-boot-starter-log4j2:${springBootVersion}"
+    //implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.17.2'
 
 }
 
