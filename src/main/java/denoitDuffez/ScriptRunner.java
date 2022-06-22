@@ -1,4 +1,4 @@
-package denoitDuffez; //Added by jborn
+package denoitDuffez;
 /*
  * Slightly modified version of the com.ibatis.common.jdbc.ScriptRunner class
  * from the iBATIS Apache project. Only removed dependency on Resource class
@@ -22,6 +22,10 @@ package denoitDuffez; //Added by jborn
  *  limitations under the License.
  */
 
+/*
+ *  Added package, removed output, added logging. See VCS for detailed overview.
+ */
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -35,6 +39,10 @@ import java.util.regex.Pattern;
  * Tool to run database scripts
  */
 public class ScriptRunner {
+
+    static {
+
+    }
 
     Logger logger = LogManager.getLogger(ScriptRunner.class);
 

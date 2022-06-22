@@ -1,5 +1,15 @@
 package z8.mctrl.db
 
+import denoitDuffez.ScriptRunner
+import mu.KotlinLogging
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.jooq.Configuration
+import org.jooq.DSLContext
+import org.jooq.SQLDialect
+import org.jooq.impl.DSL
+import org.jooq.impl.DefaultConfiguration
 import z8.mctrl.config.Config
 import z8.mctrl.data.UserActions
 import z8.mctrl.data.UserTable
@@ -9,14 +19,7 @@ import z8.mctrl.data.money.PaymentTable
 import z8.mctrl.data.money.PayoutTable
 import z8.mctrl.data.token.TokenActionTable
 import z8.mctrl.data.token.TokenTable
-import denoitDuffez.ScriptRunner
-import mu.KotlinLogging
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.transactions.transaction
-import org.jooq.DSLContext
-import org.jooq.SQLDialect
-import org.jooq.impl.DSL
+import z8.mctrl.jooq.tables.daos.*
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.sql.Connection
@@ -34,9 +37,14 @@ class DB {
 
         private var connection: Connection? = null
         private var context: DSLContext? = null
+        private var configuration: Configuration? = null
 
-        fun get(): DSLContext {
+        fun dsl(): DSLContext {
             return context!!
+        }
+
+        fun dao(): Configuration {
+            return configuration!!
         }
 
         private fun url(): String {
@@ -69,6 +77,7 @@ class DB {
                 }
 
                 context = DSL.using(connection, dialect)
+                configuration = DefaultConfiguration().set(connection).set(dialect)
                 log.info { "Database connected" }
 
             } catch (e: Exception) {
@@ -123,6 +132,38 @@ class DB {
                     UserTable
                 )
             }
+        }
+
+        fun deposit(): DepositDao {
+            return DepositDao(dao())
+        }
+
+        fun device(): DeviceDao {
+            return DeviceDao(dao())
+        }
+
+        fun payment(): PaymentDao {
+            return PaymentDao(dao())
+        }
+
+        fun payout(): PayoutDao {
+            return PayoutDao(dao())
+        }
+
+        fun tokenAction(): TokenactionDao {
+            return TokenactionDao(dao())
+        }
+
+        fun token(): TokenDaoExtended {
+            return TokenDaoExtended(dao())
+        }
+
+        fun userActions(): UseractionsDao {
+            return UseractionsDao(dao())
+        }
+
+        fun user(): UserDao {
+            return UserDao(dao())
         }
     }
 
