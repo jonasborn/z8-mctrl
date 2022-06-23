@@ -1,14 +1,14 @@
 package z8.mctrl.util
 
+import org.edumdum.iso.Iso7064
 import java.security.SecureRandom
+import java.util.*
 
-class LuhnUtils {
+class IdUtils {
 
     companion object {
 
-        val sr = SecureRandom()
-
-
+        private val sr = SecureRandom()
 
         fun generateLuhn(length: Int): IntArray {
             val create = fun(): IntArray {
@@ -16,15 +16,19 @@ class LuhnUtils {
                 for (i in 0 until length) {
                     array[i] = sr.nextInt(9 - 0 + 1) + 0
                 }
-                return array;
+                return array
             }
 
             while (true) {
-                val generated = create();
+                val generated = create()
                 if (checkLuhn(generated)) {
-                    return generated;
+                    return generated
                 }
             }
+        }
+
+        fun generateLuhnString(length: Int): String {
+            return generateLuhn(length).joinToString("")
         }
 
         fun checkLuhn(digits: IntArray): Boolean {
@@ -42,12 +46,22 @@ class LuhnUtils {
             return sum % 10 == 0
         }
 
-        fun stringify(id: IntArray): String {
-            return id.toList().chunked(4).joinToString(
+        fun generateReadable(s: String, b: Int = 4): String{
+            return generateReadable(s.toCharArray().map { it.toString() }, b)
+        }
+
+        fun generateReadable(id: List<Any>, b: Int = 4): String {
+            return id.chunked(b).joinToString(
                 separator = " ", transform = {
                     it.joinToString("")
                 }
             )
+        }
+
+        fun generateISO7064Check(input: String): String {
+            var check = Iso7064.compute(input.uppercase(Locale.getDefault())).toString()
+            if (check.length < 2) check = "0$check";
+            return check;
         }
     }
 

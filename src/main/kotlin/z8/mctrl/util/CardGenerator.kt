@@ -30,7 +30,7 @@ class CardGenerator {
             g.font = Font.createFont(Font.TRUETYPE_FONT, File("/home/jonas/Downloads/kredit back.ttf"))
                 .deriveFont(60f)
             g.drawString("z8", 70, 100)
-            g.drawString(prepareId(LuhnUtils.generateLuhn(16)), 70, 450)
+            g.drawString(prepareId(IdUtils.generateLuhn(16)), 70, 450)
             ImageIO.write(img, "png", File("out.png"))
             return img
         }

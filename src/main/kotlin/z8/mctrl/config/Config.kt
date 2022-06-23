@@ -14,7 +14,7 @@ class Config {
 
         init {
             try {
-                val source = File("z8-gctrl.properties")
+                val source = File("z8-mctrl.properties")
                 props = Properties()
                 props!!.load(FileInputStream(source))
                 log.debug { "Config loaded from $source"}

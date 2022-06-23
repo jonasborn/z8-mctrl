@@ -16,9 +16,6 @@ import z8.mctrl.data.money.DepositTable
 import z8.mctrl.data.money.Operator
 import z8.mctrl.data.money.PaymentTable
 import z8.mctrl.data.money.PayoutTable
-import z8.mctrl.util.CardGenerator
-import z8.mctrl.util.LuhnUtils
-import java.util.*
 
 //TODO https://stackoverflow.com/questions/51221777/failed-to-configure-a-datasource-url-attribute-is-not-specified-and-no-embedd
 @SpringBootApplication(exclude = [DataSourceAutoConfiguration::class])
@@ -27,15 +24,7 @@ class App
 
 fun main(args: Array<String>) {
 
-    CardGenerator.generate()
-
-    println(
-        LuhnUtils.generateLuhn(10).joinToString("")
-    )
-
-    System.exit(1)
-
-    Configurator.setRootLevel(
+     Configurator.setRootLevel(
         Level.getLevel(Config.get("logging.level"))
     )
 
