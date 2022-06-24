@@ -1,5 +1,7 @@
 package z8.mctrl.util
 
+import z8.mctrl.function.sn.SecurityNumber
+import z8.mctrl.function.token.TokenId
 import java.awt.Color
 import java.awt.Font
 import java.awt.Graphics2D
@@ -21,7 +23,8 @@ class CardGenerator {
             )
         }
 
-        fun generate(): BufferedImage {
+        fun generate(id: TokenId, sn: SecurityNumber): BufferedImage {
+
             val img = BufferedImage(1011, 637, BufferedImage.TYPE_BYTE_BINARY)
             val g = img.graphics as Graphics2D
             g.color = Color.WHITE
@@ -29,8 +32,15 @@ class CardGenerator {
             g.color = Color.BLACK
             g.font = Font.createFont(Font.TRUETYPE_FONT, File("/home/jonas/Downloads/kredit back.ttf"))
                 .deriveFont(60f)
-            g.drawString("z8", 70, 100)
-            g.drawString(prepareId(IdUtils.generateLuhn(16)), 70, 450)
+            g.drawString("z8", 70, 110)
+            g.drawString(id.getReadable(), 70, 550)
+
+            val snparts = sn.getParts()
+
+            g.drawString(snparts[0], 800, 150)
+            g.drawString(snparts[1], 800, 200)
+            g.drawString(snparts[2], 800, 250)
+
             ImageIO.write(img, "png", File("out.png"))
             return img
         }
@@ -52,9 +62,6 @@ class CardGenerator {
             return dst
         }
 
-        fun main(args: Array<String>) {
-
-        }
     }
 
 }

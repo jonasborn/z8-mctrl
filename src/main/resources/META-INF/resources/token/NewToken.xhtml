@@ -1,51 +1,73 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
+<!--suppress ELSpecValidationInJSP -->
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://java.sun.com/jsf/html"
-      xmlns:p="http://primefaces.org/ui">
-
-<h:head>
-    <title>PrimeFaces Hello World Example</title>
-</h:head>
-
-<h:body>
-    <h:form id="hello-world">
-
-        <p:panel id="id-generator" header="Generate Id">
-            <h:panelGrid columns="2" cellpadding="4">
-                <h:outputText value="Base Id: "/>
-                <p:outputLabel for="@next" value="#{NewTokenController.baseId}"/>
-
-                <h:outputText value="Checknumber: "/>
-                <p:outputLabel for="@next" value="#{NewTokenController.checkId}"/>
-
-                <h:outputText value="Readable Id: "/>
-                <p:outputLabel for="@next" value="#{NewTokenController.readableId}"/>
-
-                <h:outputText value="Special number base: "/>
-                <p:outputLabel for="@next" value="#{NewTokenController.snBase}"/>
-
-                <h:outputText value="Special number check: "/>
-                <p:outputLabel for="@next" value="#{NewTokenController.snCheck}"/>
-
-                <h:outputText value="Special number readable: "/>
-                <p:outputLabel for="@next" value="#{NewTokenController.snReadable}"/>
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:b="http://butterfaces.org/components">
+<h:head/>
+<body class="m-5">
+<h:outputStylesheet library="css" name="theme.css"/>
 
 
-                <p:commandButton id="submit" value="Submit"
-                                 action="#{NewTokenController.regenerate()}"
-                                 update="id-generator"
-                />
-            </h:panelGrid>
-        </p:panel>
+<div class="jumbotron">
+    <h1 class="display-3">New card</h1>
+    <p class="lead">This page allows you to generate a new card for printing purpose</p>
+    <hr class="my-4"/>
+    <p class="lead">Simply check the generated output and press the download button at the end of the page</p>
+    <p class="lead">The generated zip file will include everything needed to create a new card!</p>
+    <b:commandLink id="input"
+                   value="Refresh"
+                   glyphicon="glyphicon glyphicon-thumbs-up glyphicon-lg"
+                   styleClass="btn btn-primary"
+                   ajaxDisableLinkOnRequest="true"
+                   ajaxShowWaitingDotsOnRequest="true"
+                   ajaxHideGlyphiconOnRequest="true"
+                   ajaxDisableRenderRegionsOnRequest="true"
+                   ajaxProcessingGlyphicon="fa fa-refresh"
+                   action="#{NewTokenController.regenerate()}"
+                   rendered="true">
+        <f:ajax render="clicks"/>
+    </b:commandLink>
+</div>
+<h:form id="formId">
+    <h:panelGroup id="clicks" layout="block">
 
-        <p:dialog header="Greeting" widgetVar="greetingDialog"
-                  modal="true" resizable="false">
-            <h:panelGrid id="greeting" columns="1" cellpadding="4">
-                <h:outputText value="#{welcome.showGreeting()}"/>
-            </h:panelGrid>
-        </p:dialog>
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-header">Token id</div>
+            <div class="card-body">
+                <h4 class="card-title">Base</h4>
+                <p class="card-text">#{NewTokenController.tokenId.base}</p>
+                <h4 class="card-title">Check</h4>
+                <p class="card-text">#{NewTokenController.tokenId.check}</p>
+                <h4 class="card-title">Result</h4>
+                <p class="card-text">#{NewTokenController.tokenId.readable}</p>
+            </div>
+        </div>
 
-    </h:form>
-</h:body>
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-header">Security number</div>
+            <div class="card-body">
+                <h4 class="card-title">Base</h4>
+                <p class="card-text">#{NewTokenController.securityNumber.base}</p>
+                <h4 class="card-title">Check</h4>
+                <p class="card-text">#{NewTokenController.securityNumber.check}</p>
+                <h4 class="card-title">Result</h4>
+                <p class="card-text">#{NewTokenController.securityNumber.readable}</p>
+            </div>
+        </div>
+
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-header">Image</div>
+            <div class="card-body">
+                <img src="#{NewTokenController.image}" width="100%"/>
+            </div>
+        </div>
+
+    </h:panelGroup>
+
+
+    <b:activateLibraries/>
+</h:form>
+</body>
 </html>

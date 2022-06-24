@@ -11,7 +11,8 @@ public class CustomServletContextInitializer implements ServletContextInitialize
 
     @Override
     public void onStartup(ServletContext sc) throws ServletException {
-        //sc.setInitParameter("primefaces.THEME", "admin");
+        sc.setInitParameter("org.butterfaces.provideBootstrap", "false");
+        sc.setInitParameter("org.butterfaces.ajaxDisableRenderRegionsOnRequest", "true");
     }
 
 }

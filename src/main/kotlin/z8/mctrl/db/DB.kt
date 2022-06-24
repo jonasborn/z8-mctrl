@@ -97,16 +97,15 @@ class DB {
                     connection!!.prepareStatement("CREATE DATABASE IF NOT EXISTS $database DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;")
                 sm.executeQuery()
                 connection!!.catalog = database
-            }
-
-            val runner = ScriptRunner(connection, false, true)
-            runner.runScript(
-                BufferedReader(
-                    InputStreamReader(
-                        DB::class.java.getResourceAsStream("/structure.sql")!!
+                val runner = ScriptRunner(connection, false, true)
+                runner.runScript(
+                    BufferedReader(
+                        InputStreamReader(
+                            DB::class.java.getResourceAsStream("/structure.sql")!!
+                        )
                     )
                 )
-            )
+            }
         }
 
         fun unused() {

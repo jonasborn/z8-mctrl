@@ -1,43 +1,35 @@
 package z8.mctrl.controller.token
 
-import z8.mctrl.function.SecurityNumbers
-import z8.mctrl.util.IdUtils
+
+import com.google.common.io.BaseEncoding
+import z8.mctrl.function.sn.SecurityNumber
+import z8.mctrl.function.token.TokenId
+import z8.mctrl.util.CardGenerator
+import java.io.ByteArrayOutputStream
 import javax.faces.view.ViewScoped
+import javax.imageio.ImageIO
 import javax.inject.Named
 
 
 @Named("NewTokenController")
 @ViewScoped
-class NewTokenController() {
+class NewTokenController {
 
-    public var baseId: String? = null
-    public var checkId: String? = null
-    public var readableId: String? = null
-    public var totalId: String? = null
-
-    public var snBase: String? = null
-    public var snCheck: String? = null
-    public var snTotal: String? = null
-    public var snReadable: String? = null
+    var tokenId = TokenId()
+    var securityNumber = SecurityNumber(tokenId)
+    var image: String? = null;
 
     init {
         regenerate()
     }
 
-    public fun regenerate() {
-        baseId = IdUtils.generateLuhnString(14)
-        checkId = IdUtils.generateISO7064Check(baseId!!)
-        totalId = baseId + checkId
-        readableId = IdUtils.generateReadable(totalId!!)
+    fun regenerate() {
+        Thread.sleep(2000)
+        tokenId = TokenId()
+        securityNumber = SecurityNumber(tokenId)
 
-        snBase = SecurityNumbers.generateSecurityNumberBase(totalId!!)
-        for (i in 0 until 10) {
-            println(SecurityNumbers.generateSecurityNumberBase(totalId!!))
-        }
-        snCheck = IdUtils.generateISO7064Check(snBase!!)
-
-        snTotal = snBase + snCheck
-
-        snReadable = IdUtils.generateReadable(snTotal!!, 3)
+        val os = ByteArrayOutputStream()
+        ImageIO.write(CardGenerator.generate(tokenId, securityNumber), "png", os)
+        image = "data:image/png;base64," + BaseEncoding.base64().encode(os.toByteArray())
     }
 }
