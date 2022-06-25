@@ -13,6 +13,8 @@ public class CustomServletContextInitializer implements ServletContextInitialize
     public void onStartup(ServletContext sc) throws ServletException {
         sc.setInitParameter("org.butterfaces.provideBootstrap", "false");
         sc.setInitParameter("org.butterfaces.ajaxDisableRenderRegionsOnRequest", "true");
+        sc.setInitParameter("org.butterfaces.provideJQuery", "true");
+        sc.setInitParameter("org.butterfaces.provideBootstrap", "false");
     }
 
 }

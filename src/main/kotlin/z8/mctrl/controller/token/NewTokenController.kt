@@ -18,6 +18,8 @@ class NewTokenController {
     var tokenId = TokenId()
     var securityNumber = SecurityNumber(tokenId)
     var image: String? = null;
+    var images: List<String> = listOf("a", "b")
+    var selected: Any? = null
 
     init {
         regenerate()
