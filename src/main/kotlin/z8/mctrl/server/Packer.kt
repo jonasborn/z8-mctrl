@@ -4,7 +4,7 @@ import com.google.common.hash.Hashing
 import z8.proto.alpha.ServerMessage
 import java.io.ByteArrayOutputStream
 
-class Pack {
+class Packer {
 
     companion object {
         fun pack(sm: ServerMessage, secret: String): ServerMessage {

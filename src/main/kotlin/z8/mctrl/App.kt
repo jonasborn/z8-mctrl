@@ -18,6 +18,7 @@ import z8.mctrl.data.money.PaymentTable
 import z8.mctrl.data.money.PayoutTable
 import z8.mctrl.function.sn.SecurityNumber
 import z8.mctrl.function.token.TokenId
+import z8.mctrl.server.WSServer
 import z8.mctrl.util.CardGenerator
 
 //TODO https://stackoverflow.com/questions/51221777/failed-to-configure-a-datasource-url-attribute-is-not-specified-and-no-embedd
@@ -26,14 +27,6 @@ import z8.mctrl.util.CardGenerator
 class App
 
 fun main(args: Array<String>) {
-
-    var t = TokenId()
-    var s = SecurityNumber(t)
-
-    CardGenerator.generate(
-        t, s
-    )
-
      Configurator.setRootLevel(
         Level.getLevel(Config.get("logging.level"))
     )
@@ -41,8 +34,9 @@ fun main(args: Array<String>) {
     DB.init()
     DB.createStructure(false)
 
+    WSServer.startup()
 
-    runApplication<App>(*args)
+    //runApplication<App>(*args)
 }
 
 fun unused() {
