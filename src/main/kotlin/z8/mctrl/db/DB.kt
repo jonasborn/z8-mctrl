@@ -2,23 +2,12 @@ package z8.mctrl.db
 
 import denoitDuffez.ScriptRunner
 import mu.KotlinLogging
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
 import org.jooq.impl.DefaultConfiguration
 import z8.mctrl.config.Config
-import z8.mctrl.data.UserActions
-import z8.mctrl.data.UserTable
-import z8.mctrl.data.device.DeviceTable
-import z8.mctrl.data.money.DepositTable
-import z8.mctrl.data.money.PaymentTable
-import z8.mctrl.data.money.PayoutTable
-import z8.mctrl.data.token.TokenActionTable
-import z8.mctrl.data.token.TokenTable
 import z8.mctrl.jooq.tables.daos.*
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -108,30 +97,6 @@ class DB {
             }
         }
 
-        fun unused() {
-            log.debug { "Attempting to connect to database" }
-            Database.connect(
-                Config.string("database.url", "jdbc:mariadb://localhost:3306/zeroeight?user=root"),
-                driver = Config.string("database.driver", "org.mariadb.jdbc.Driver"),
-                user = Config.string("database.username", "root"),
-                password = Config.string("database.password", "")
-            )
-            log.info { "Database connected" }
-
-
-            transaction {
-                SchemaUtils.create(
-                    DeviceTable,
-                    DepositTable,
-                    PaymentTable,
-                    PayoutTable,
-                    TokenActionTable,
-                    TokenTable,
-                    UserActions,
-                    UserTable
-                )
-            }
-        }
 
         fun deposit(): DepositDao {
             return DepositDao(dao())

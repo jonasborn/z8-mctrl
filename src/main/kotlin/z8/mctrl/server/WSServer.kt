@@ -45,9 +45,9 @@ class WSServer(address: InetSocketAddress?) : WebSocketServer(address) {
 
 
     override fun onMessage(conn: WebSocket?, message: ByteBuffer?) {
-        if (message != null) {
+        if (conn != null && message != null) {
             try {
-                val m = UnPacker.unpack(message)
+                val m = UnPacker.unpack(conn, message)
                 if (m != null) {
                     if (m.hasTokenReadEvent()) {
                         println("Token found: " + m.tokenReadEvent.token)
