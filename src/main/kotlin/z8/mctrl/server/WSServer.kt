@@ -1,11 +1,13 @@
 package z8.mctrl.server
 
+import com.google.common.io.BaseEncoding
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
 import z8.mctrl.controller.Welcome
+import z8.proto.alpha.ClientMessage
 import z8.proto.alpha.WelcomeMessage
 import java.lang.Exception
 import java.net.InetSocketAddress
@@ -18,15 +20,22 @@ class WSServer(address: InetSocketAddress?) : WebSocketServer(address) {
 
     companion object {
         fun startup() {
-            WSServer(
+            val s = WSServer(
                 InetSocketAddress(8823)
-            ).start()
+            )
+            s.connectionLostTimeout = 20
+            s.start()
+
         }
     }
 
     override fun onOpen(conn: WebSocket?, handshake: ClientHandshake?) {
         if (conn != null) {
-            logger.info("Connection from {}:{} opened", conn.remoteSocketAddress.address.hostAddress, conn.remoteSocketAddress.port)
+            logger.info(
+                "Connection from {}:{} opened",
+                conn.remoteSocketAddress.address.hostAddress,
+                conn.remoteSocketAddress.port
+            )
         }
     }
 
@@ -36,9 +45,17 @@ class WSServer(address: InetSocketAddress?) : WebSocketServer(address) {
 
 
     override fun onMessage(conn: WebSocket?, message: ByteBuffer?) {
-        println("Bytes")
         if (message != null) {
-            UnPacker.unpack(message)
+            try {
+                val m = UnPacker.unpack(message)
+                if (m != null) {
+                    if (m.hasTokenReadEvent()) {
+                        println("Token found: " + m.tokenReadEvent.token)
+                    }
+                }
+            } catch (e: Throwable) {
+                println("ERROR")
+            }
         }
     }
 

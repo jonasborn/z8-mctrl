@@ -12,7 +12,17 @@ class UnPacker {
 
         fun unpack(message: ByteBuffer): ClientMessage? {
             try {
-                ClientMessage.parseFrom(message)
+                val m = ClientMessage.parseFrom(message)
+                if (m.hasTokenReadEvent()) {
+                    println(m.tokenReadEvent.token)
+                }
+                if (m.hasLogMessage()) {
+                    println(
+                        m.logMessage.level.toString() + " - " +
+                        m.logMessage.source + ": " + m.logMessage.message
+                    )
+                }
+
             } catch (e: Exception) {
                 logger.warn("Unable to parse message", e)
             }

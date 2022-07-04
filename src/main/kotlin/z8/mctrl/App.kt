@@ -27,6 +27,8 @@ import z8.mctrl.util.CardGenerator
 class App
 
 fun main(args: Array<String>) {
+
+
      Configurator.setRootLevel(
         Level.getLevel(Config.get("logging.level"))
     )

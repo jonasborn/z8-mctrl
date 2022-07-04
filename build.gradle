@@ -62,7 +62,7 @@ repositories {
     mavenCentral()
     jcenter()
     maven { url 'https://jitpack.io' }
-    maven { url "https://oss.sonatype.org/content/repositories/snapshots"}
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
 }
 
 dependencies {
@@ -99,7 +99,7 @@ dependencies {
     implementation 'com.github.EDumdum:iso-7064-java:1.0.0'
     implementation 'org.jasypt:jasypt:1.9.3'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
-    implementation ('org.joinfaces:butterfaces-spring-boot-starter:4.7.1') {
+    implementation('org.joinfaces:butterfaces-spring-boot-starter:4.7.1') {
         exclude(group: "org.springframework.boot", module: "spring-boot-starter-logging")
     }
 
@@ -112,9 +112,18 @@ dependencies {
 
 }
 
-
 import nu.studer.gradle.jooq.JooqEdition
 import org.jooq.meta.jaxb.Logging
+import org.ajoberstar.grgit.Grgit
+
+//This is a very ugly solution! TODO Remove and integrate
+//Needed to pull the protobuf files before any other task
+def z8protoDir = "$buildDir/z8-proto"
+delete(z8protoDir)
+//noinspection GroovyAccessibility
+def grgit = Grgit.clone(
+        dir: z8protoDir, uri: "https://github.com/jonasborn/z8-proto.git"
+)
 
 
 jooq {
@@ -197,14 +206,4 @@ compileKotlin {
     }
 }
 
-import org.ajoberstar.grgit.Grgit
-
-compileJava.doFirst {
-    def z8protoDir = "$buildDir/z8-proto"
-    delete(z8protoDir)
-    //noinspection GroovyAccessibility
-    def grgit = Grgit.clone(
-            dir: z8protoDir, uri: "https://github.com/jonasborn/z8-proto.git"
-    )
-}
 
