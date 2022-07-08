@@ -126,6 +126,12 @@ def grgit = Grgit.clone(
         dir: z8protoDir, uri: "https://github.com/jonasborn/z8-proto.git"
 )
 
+
+def file = new File('build/z8-proto/z8-alpha.proto')
+def newConfig = file.text.replaceAll("import.*", "")
+newConfig = newConfig.replaceAll("option.*nanopb.*", "")
+file.text = newConfig
+
 jooq {
     // use jOOQ version defined in Spring Boot
     version = dependencyManagement.importedProperties['jooq.version']

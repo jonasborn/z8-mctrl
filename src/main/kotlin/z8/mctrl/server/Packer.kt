@@ -15,8 +15,7 @@ class Packer {
             sm.writeTo(op)
             val secretBytes = secret.toByteArray()
             op.writeBytes(secretBytes)
-            return sm.toBuilder()
-                .setSecret(Hashing.sha256().hashBytes(op.toByteArray()).toString()).build().toByteArray()
+            return sm.toBuilder().setBearer(Hashing.sha256().hashBytes(op.toByteArray()).toString()).build().toByteArray()
         }
     }
 

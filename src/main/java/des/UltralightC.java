@@ -12,14 +12,20 @@ package des;
 
 
 import com.google.common.io.BaseEncoding;
+import com.google.protobuf.ByteString;
+import com.google.protobuf.InvalidProtocolBufferException;
 import org.java_websocket.WebSocket;
-import z8.mctrl.server.Packer;
-import z8.proto.alpha.DesFireAuthentication;
+import z8.proto.alpha.ClientMessage;
 import z8.proto.alpha.ServerMessage;
+import z8.proto.alpha.TokenAuthenticatedEvent;
+import z8.proto.alpha.TokenFoundEvent;
+import z8.proto.alpha.UltralightCAuthentication;
 
 import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
 import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Eases the manipulation of MIFARE Ultralight C smart cards.
@@ -33,11 +39,113 @@ import java.security.SecureRandom;
  */
 public class UltralightC {
 
-    WebSocket ws;
+    public static byte[] getKey(String token) {
+        return new byte[]{0x49, 0x45, 0x4D, 0x4B, 0x41, 0x45, 0x52, 0x42, 0x21, 0x4E, 0x41, 0x43, 0x55, 0x4F, 0x59, 0x46, 0x49, 0x45, 0x4D, 0x4B, 0x41, 0x45, 0x52, 0x42};
+    }
 
 
-    public UltralightC(WebSocket ws) {
-        this.ws = ws;
+    public static UltralightCAuthentication requestStage1(TokenFoundEvent tfe) {
+        return UltralightCAuthentication.newBuilder()
+                .setToken(tfe.getToken())
+                .setStage(1)
+                .setData(
+                        ByteString.copyFrom(
+                                new byte[]{0x1A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+                        )
+                ).build();
+    }
+
+
+    public static UltralightCAuthentication requestStage3(UltralightCAuthentication uca) {
+        if (uca.getStage() != 2) return null;
+        byte[] iv1 = {0, 0, 0, 0, 0, 0, 0, 0};
+        byte[] key = new byte[24];
+
+        byte[] data = uca.getData().toByteArray();
+        byte[] myKey = getKey(uca.getToken());
+        // prepare key: K1||K2||K1
+        System.arraycopy(myKey, 0, key, 0, 16);
+        System.arraycopy(myKey, 0, key, 16, 8);
+
+        // message exchange 1
+        byte[] auth1 = {(byte) 0xFF, (byte) 0xEF, 0x00, 0x00, 0x02, 0x1A, 0x00};
+        feedback(auth1, data);
+        byte af = (byte) 0xAF;
+        if (data[0] != af) {
+            return null;
+        }
+
+        // extract random B from response
+        byte[] encryptedRandB = new byte[8]; // second IV
+        System.arraycopy(data, 1, encryptedRandB, 0, 8);
+        byte[] randB = TripleDES.decrypt(iv1, key, encryptedRandB);
+        // generate random A
+        byte[] randA = new byte[8];
+        SecureRandom g = new SecureRandom();
+        g.nextBytes(randA);
+
+        // concatenate/encrypt randA||randB'
+        byte[] randConcat = new byte[16];
+        System.arraycopy(randA, 0, randConcat, 0, 8);
+        System.arraycopy(randB, 1, randConcat, 8, 7);
+        System.arraycopy(randB, 0, randConcat, 15, 1);
+        byte[] encrRands = TripleDES.encrypt(encryptedRandB, key, randConcat);
+
+        // prepare second message
+        byte[] auth2 = new byte[22];
+        auth2[0] = (byte) 0xFF;
+        auth2[1] = (byte) 0xEF;
+        auth2[2] = 0x00;
+        auth2[3] = 0x00;
+        auth2[4] = 0x11;
+        auth2[5] = (byte) 0xAF;
+        if (encrRands == null) return null;
+        System.arraycopy(encrRands, 0, auth2, 6, 16);
+
+        return UltralightCAuthentication.newBuilder()
+                .setToken(uca.getToken())
+                .setAuth2(
+                        ByteString.copyFrom(auth2)
+                ).setRandA(
+                        ByteString.copyFrom(randA)
+                ).build();
+    }
+
+
+    public static TokenAuthenticatedEvent requestStage5(UltralightCAuthentication uca) {
+        if (uca.getStage() != 4) return null;
+        byte[] key = new byte[24];
+
+        byte[] myKey = getKey(uca.getToken());
+        byte[] randA = uca.getRandA().toByteArray();
+        byte[] auth2 = uca.getAuth2().toByteArray();
+        byte[] data = uca.getData().toByteArray();
+
+        // prepare key: K1||K2||K1
+        System.arraycopy(myKey, 0, key, 0, 16);
+        System.arraycopy(myKey, 0, key, 16, 8);
+
+        feedback(auth2, data);
+        if (data[0] != 0) {
+            return null;
+        }
+
+        // verify received randA
+        byte[] iv3 = new byte[8];
+        System.arraycopy(auth2, 14, iv3, 0, 8);
+        byte[] encryptedRandAp = new byte[8];
+        System.arraycopy(data, 1, encryptedRandAp, 0, 8);
+        byte[] decryptedRandAp = TripleDES.decrypt(iv3, key, encryptedRandAp);
+        byte[] decryptedRandA = new byte[8];
+        System.arraycopy(decryptedRandAp, 0, decryptedRandA, 1, 7);
+        decryptedRandA[0] = decryptedRandAp[7];
+        for (int i = 0; i < 8; i++) {
+            if (decryptedRandA[i] != randA[i]) {
+                return null;
+            }
+        }
+
+        return TokenAuthenticatedEvent.newBuilder().setToken(uca.getToken()).setBarer("auth").build();
     }
 
     /**
@@ -57,6 +165,7 @@ public class UltralightC {
         // message exchange 1
         byte[] auth1 = {(byte) 0xFF, (byte) 0xEF, 0x00, 0x00, 0x02, 0x1A, 0x00};
         byte[] r1 = transmit(auth1);
+        // 1
         feedback(auth1, r1);
         byte af = (byte) 0xAF;
         if (r1[0] != af) {
@@ -67,7 +176,6 @@ public class UltralightC {
         byte[] encryptedRandB = new byte[8]; // second IV
         System.arraycopy(r1, 1, encryptedRandB, 0, 8);
         byte[] randB = TripleDES.decrypt(iv1, key, encryptedRandB);
-        System.out.println(BaseEncoding.base16().encode(randB));
         // generate random A
         byte[] randA = new byte[8];
         SecureRandom g = new SecureRandom();
@@ -89,7 +197,7 @@ public class UltralightC {
         auth2[4] = 0x11;
         auth2[5] = (byte) 0xAF;
         System.arraycopy(encrRands, 0, auth2, 6, 16);
-
+        // 1
         // message exchange 2
         byte[] r2 = null;
         try {
@@ -318,15 +426,6 @@ public class UltralightC {
         return null;
 
     }
-    void uns() {
-        ServerMessage message = ServerMessage.newBuilder()
-                .setDesFireAuthentication(
-                        DesFireAuthentication.newBuilder().build()
-                ).build();
-        ws.send(Packer.Companion.pack(
-                message, ""
-        ));
-    }
 
     protected ResponseAPDU transmit(CommandAPDU command) {
         return new ResponseAPDU(
@@ -334,9 +433,18 @@ public class UltralightC {
         );
     }
 
-    public static void main(String[] args) {
-        new UltralightC(null).authenticate(
-                BaseEncoding.base16().decode("49454D4B41455242214E4143554F5946")
-        );
+    public static void main(String[] args) throws InvalidProtocolBufferException {
+
+        System.out.println(BaseEncoding.base64().encode(new byte[]{0x1A, 0x00, 0x00, 0x00}));
+
     }
+
+
+    WebSocket ws;
+
+
+    public UltralightC(WebSocket ws) {
+        this.ws = ws;
+    }
+
 }
