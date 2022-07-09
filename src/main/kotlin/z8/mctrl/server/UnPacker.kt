@@ -24,16 +24,17 @@ class UnPacker {
         fun unpack(conn: WebSocket, message: ByteBuffer): ClientMessage? {
             try {
                 val m = ClientMessage.parseFrom(message)
-                logger.debug("Received client message: {}", m)
+                logger.debug("Received client message: <<<<<<<<<<<<< {}", m)
                 HANDLERS.filter { it.canHandle(m) }.forEach {
                     logger.debug("Handler {} matches", it.javaClass)
-                    val sm = it.handle(m);
+                    val sm = it.handle(m)
                     if (sm != null) {
-                        logger.debug("Handler returning\n{}", sm.toString())
+                        logger.debug(
+                            "Handler returning\n>>>>>>>>>>>>> {}\n{}",
+                            sm.toString(),
+                            BaseEncoding.base16().encode(sm.toByteArray())
+                        )
                         conn.send(sm.toByteArray())
-                        println(ServerMessage.parseFrom(sm.toByteArray()).toByteString())
-                        println(BaseEncoding.base16().encode(sm.toByteArray()))
-
                     }
                 }
 

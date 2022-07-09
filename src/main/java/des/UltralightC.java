@@ -56,28 +56,21 @@ public class UltralightC {
     }
 
 
+
     public static UltralightCAuthentication requestStage3(UltralightCAuthentication uca) {
         if (uca.getStage() != 2) return null;
         byte[] iv1 = {0, 0, 0, 0, 0, 0, 0, 0};
         byte[] key = new byte[24];
 
-        byte[] data = uca.getData().toByteArray();
+        byte[] inputData = uca.getData().toByteArray();
         byte[] myKey = getKey(uca.getToken());
         // prepare key: K1||K2||K1
         System.arraycopy(myKey, 0, key, 0, 16);
         System.arraycopy(myKey, 0, key, 16, 8);
 
-        // message exchange 1
-        byte[] auth1 = {(byte) 0xFF, (byte) 0xEF, 0x00, 0x00, 0x02, 0x1A, 0x00};
-        feedback(auth1, data);
-        byte af = (byte) 0xAF;
-        if (data[0] != af) {
-            return null;
-        }
-
         // extract random B from response
         byte[] encryptedRandB = new byte[8]; // second IV
-        System.arraycopy(data, 1, encryptedRandB, 0, 8);
+        System.arraycopy(inputData, 1, encryptedRandB, 0, 8);
         byte[] randB = TripleDES.decrypt(iv1, key, encryptedRandB);
         // generate random A
         byte[] randA = new byte[8];
@@ -91,21 +84,20 @@ public class UltralightC {
         System.arraycopy(randB, 0, randConcat, 15, 1);
         byte[] encrRands = TripleDES.encrypt(encryptedRandB, key, randConcat);
 
-        // prepare second message
-        byte[] auth2 = new byte[22];
-        auth2[0] = (byte) 0xFF;
-        auth2[1] = (byte) 0xEF;
-        auth2[2] = 0x00;
-        auth2[3] = 0x00;
-        auth2[4] = 0x11;
-        auth2[5] = (byte) 0xAF;
         if (encrRands == null) return null;
-        System.arraycopy(encrRands, 0, auth2, 6, 16);
+
+        byte[] fin = new byte[17];
+        fin[0] = (byte) 0xAF;
+        System.arraycopy(encrRands, 0, fin, 1, 16);
 
         return UltralightCAuthentication.newBuilder()
+                .setStage(3)
                 .setToken(uca.getToken())
+                .setData(
+                        ByteString.copyFrom(fin)
+                )
                 .setAuth2(
-                        ByteString.copyFrom(auth2)
+                        ByteString.copyFrom(fin)
                 ).setRandA(
                         ByteString.copyFrom(randA)
                 ).build();
@@ -125,14 +117,9 @@ public class UltralightC {
         System.arraycopy(myKey, 0, key, 0, 16);
         System.arraycopy(myKey, 0, key, 16, 8);
 
-        feedback(auth2, data);
-        if (data[0] != 0) {
-            return null;
-        }
-
         // verify received randA
         byte[] iv3 = new byte[8];
-        System.arraycopy(auth2, 14, iv3, 0, 8);
+        System.arraycopy(auth2, 9, iv3, 0, 8);
         byte[] encryptedRandAp = new byte[8];
         System.arraycopy(data, 1, encryptedRandAp, 0, 8);
         byte[] decryptedRandAp = TripleDES.decrypt(iv3, key, encryptedRandAp);
@@ -144,6 +131,8 @@ public class UltralightC {
                 return null;
             }
         }
+
+        System.out.println("Success!");
 
         return TokenAuthenticatedEvent.newBuilder().setToken(uca.getToken()).setBarer("auth").build();
     }
@@ -435,7 +424,38 @@ public class UltralightC {
 
     public static void main(String[] args) throws InvalidProtocolBufferException {
 
-        System.out.println(BaseEncoding.base64().encode(new byte[]{0x1A, 0x00, 0x00, 0x00}));
+
+        byte[] iv1 = {0, 0, 0, 0, 0, 0, 0, 0};
+        byte[] key = new byte[24];
+
+        byte[] inputData = BaseEncoding.base16().decode("AF577293FD2F34CA51");
+        byte[] myKey = getKey("");
+        // prepare key: K1||K2||K1
+        System.arraycopy(myKey, 0, key, 0, 16);
+        System.arraycopy(myKey, 0, key, 16, 8);
+
+        // extract random B from response
+        byte[] encryptedRandB = new byte[8]; // second IV
+        System.arraycopy(inputData, 1, encryptedRandB, 0, 8);
+        byte[] randB = TripleDES.decrypt(iv1, key, encryptedRandB);
+
+        System.out.println("RndB: " + BaseEncoding.base16().encode(randB));
+        // generate random A
+        byte[] randA = BaseEncoding.base16().decode("A8AF3B256C75ED40");
+
+        // concatenate/encrypt randA||randB'
+        byte[] randConcat = new byte[16];
+        System.arraycopy(randA, 0, randConcat, 0, 8);
+        System.arraycopy(randB, 1, randConcat, 8, 7);
+        System.arraycopy(randB, 0, randConcat, 15, 1);
+        byte[] encrRands = TripleDES.encrypt(encryptedRandB, key, randConcat);
+
+        byte[] fin = new byte[17];
+        fin[0] = (byte) 0xAF;
+        System.arraycopy(encrRands, 0, fin, 1, 16);
+
+        System.out.println("R&B: " + BaseEncoding.base16().encode(fin));
+
 
     }
 

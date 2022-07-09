@@ -25,21 +25,22 @@ class UltralightCHandler : WSHandler {
                 ).build()
         }
         if (cm.hasUltralightCAuthentication()) {
-            val stage = cm.ultralightCAuthentication.stage
-            log.debug("UltralightC stage {} response for {} received", stage, cm.ultralightCAuthentication.token)
-            if (stage == 2) {
+            val nextStage = cm.ultralightCAuthentication.stage
+            log.debug("UltralightC next stage {} message for {} received", nextStage, cm.ultralightCAuthentication.token)
+            if (nextStage == 2) {
                 return ServerMessage.newBuilder()
                     .setUltralightCAuthentication(
                         UltralightC.requestStage3(
                             cm.ultralightCAuthentication
                         )
                     ).build()
-            }
-            if (stage == 3) {
+            } else if (nextStage == 4) {
                 return ServerMessage.newBuilder()
                     .setTokenAuthenticatedEvent(
                         UltralightC.requestStage5(cm.ultralightCAuthentication)
                     ).build()
+            } else {
+                log.warn("Stage not supported")
             }
         }
         return null
