@@ -47,7 +47,7 @@ public class UltralightC {
     public static UltralightCAuthentication requestStage1(TokenFoundEvent tfe) {
         return UltralightCAuthentication.newBuilder()
                 .setToken(tfe.getToken())
-                .setStage(1)
+                .setNextStage(1)
                 .setData(
                         ByteString.copyFrom(
                                 new byte[]{0x1A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
@@ -58,7 +58,7 @@ public class UltralightC {
 
 
     public static UltralightCAuthentication requestStage3(UltralightCAuthentication uca) {
-        if (uca.getStage() != 2) return null;
+        if (uca.getNextStage() != 2) return null;
         byte[] iv1 = {0, 0, 0, 0, 0, 0, 0, 0};
         byte[] key = new byte[24];
 
@@ -90,27 +90,31 @@ public class UltralightC {
         fin[0] = (byte) 0xAF;
         System.arraycopy(encrRands, 0, fin, 1, 16);
 
+        byte[] eRandA = TripleDES.encrypt(new byte[] {0, 0, 0, 0, 0, 0, 0, 0}, myKey, randA);
+        if (eRandA == null) return null;
+
         return UltralightCAuthentication.newBuilder()
-                .setStage(3)
+                .setNextStage(3)
                 .setToken(uca.getToken())
                 .setData(
                         ByteString.copyFrom(fin)
                 )
-                .setAuth2(
+                .setData2(
                         ByteString.copyFrom(fin)
                 ).setRandA(
-                        ByteString.copyFrom(randA)
+                        ByteString.copyFrom(eRandA)
                 ).build();
     }
 
 
     public static TokenAuthenticatedEvent requestStage5(UltralightCAuthentication uca) {
-        if (uca.getStage() != 4) return null;
+        if (uca.getNextStage() != 4) return null;
         byte[] key = new byte[24];
 
         byte[] myKey = getKey(uca.getToken());
-        byte[] randA = uca.getRandA().toByteArray();
-        byte[] auth2 = uca.getAuth2().toByteArray();
+        byte[] eRandA = uca.getRandA().toByteArray();
+        byte[] randA = TripleDES.decrypt(new byte[] {0, 0, 0, 0, 0, 0, 0, 0}, myKey, eRandA);
+        byte[] auth2 = uca.getData2().toByteArray();
         byte[] data = uca.getData().toByteArray();
 
         // prepare key: K1||K2||K1

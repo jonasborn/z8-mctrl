@@ -130,6 +130,7 @@ def grgit = Grgit.clone(
 def file = new File('build/z8-proto/z8-alpha.proto')
 def newConfig = file.text.replaceAll("import.*", "")
 newConfig = newConfig.replaceAll("option.*nanopb.*", "")
+newConfig = newConfig.replaceAll("\\s+\\[.*\\]", "")
 file.text = newConfig
 
 jooq {

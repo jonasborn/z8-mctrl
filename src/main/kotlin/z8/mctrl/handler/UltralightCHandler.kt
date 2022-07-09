@@ -25,7 +25,7 @@ class UltralightCHandler : WSHandler {
                 ).build()
         }
         if (cm.hasUltralightCAuthentication()) {
-            val nextStage = cm.ultralightCAuthentication.stage
+            val nextStage = cm.ultralightCAuthentication.nextStage
             log.debug("UltralightC next stage {} message for {} received", nextStage, cm.ultralightCAuthentication.token)
             if (nextStage == 2) {
                 return ServerMessage.newBuilder()
