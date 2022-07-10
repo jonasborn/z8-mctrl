@@ -138,91 +138,10 @@ public class UltralightC {
 
         System.out.println("Success!");
 
-        return TokenAuthenticatedEvent.newBuilder().setToken(uca.getToken()).setBarer("auth").build();
+        return TokenAuthenticatedEvent.newBuilder().setToken(uca.getToken()).build();
     }
 
-    /**
-     * Mutual authentication using 3DES.
-     *
-     * @param myKey shared secret key: K1||K2 (16 bytes)
-     * @return {@code true} on success, {@code false} otherwise
-     */
-    public boolean authenticate(byte[] myKey) {
-        byte[] iv1 = {0, 0, 0, 0, 0, 0, 0, 0};
-        byte[] key = new byte[24];
 
-        // prepare key: K1||K2||K1
-        System.arraycopy(myKey, 0, key, 0, 16);
-        System.arraycopy(myKey, 0, key, 16, 8);
-
-        // message exchange 1
-        byte[] auth1 = {(byte) 0xFF, (byte) 0xEF, 0x00, 0x00, 0x02, 0x1A, 0x00};
-        byte[] r1 = transmit(auth1);
-        // 1
-        feedback(auth1, r1);
-        byte af = (byte) 0xAF;
-        if (r1[0] != af) {
-            return false;
-        }
-
-        // extract random B from response
-        byte[] encryptedRandB = new byte[8]; // second IV
-        System.arraycopy(r1, 1, encryptedRandB, 0, 8);
-        byte[] randB = TripleDES.decrypt(iv1, key, encryptedRandB);
-        // generate random A
-        byte[] randA = new byte[8];
-        SecureRandom g = new SecureRandom();
-        g.nextBytes(randA);
-
-        // concatenate/encrypt randA||randB'
-        byte[] randConcat = new byte[16];
-        System.arraycopy(randA, 0, randConcat, 0, 8);
-        System.arraycopy(randB, 1, randConcat, 8, 7);
-        System.arraycopy(randB, 0, randConcat, 15, 1);
-        byte[] encrRands = TripleDES.encrypt(encryptedRandB, key, randConcat);
-
-        // prepare second message
-        byte[] auth2 = new byte[22];
-        auth2[0] = (byte) 0xFF;
-        auth2[1] = (byte) 0xEF;
-        auth2[2] = 0x00;
-        auth2[3] = 0x00;
-        auth2[4] = 0x11;
-        auth2[5] = (byte) 0xAF;
-        System.arraycopy(encrRands, 0, auth2, 6, 16);
-        // 1
-        // message exchange 2
-        byte[] r2 = null;
-        try {
-            r2 = transmit(auth2);
-        } catch (IllegalArgumentException e) {
-            //FIXME: handle this without the exception?
-            System.out.println("wrong auth key?");
-            return false;
-        }
-        feedback(auth2, r2);
-        if (r2[0] != 0) {
-            return false;
-        }
-
-        // verify received randA
-        byte[] iv3 = new byte[8];
-        System.arraycopy(auth2, 14, iv3, 0, 8);
-        byte[] encryptedRandAp = new byte[8];
-        System.arraycopy(r2, 1, encryptedRandAp, 0, 8);
-        byte[] decryptedRandAp = TripleDES.decrypt(iv3, key, encryptedRandAp);
-        byte[] decryptedRandA = new byte[8];
-        System.arraycopy(decryptedRandAp, 0, decryptedRandA, 1, 7);
-        decryptedRandA[0] = decryptedRandAp[7];
-        for (int i = 0; i < 8; i++) {
-            if (decryptedRandA[i] != randA[i]) {
-                return false;
-            }
-        }
-        //System.out.println(String.format("randA is %s, randB is %s", Dump.hex(randA), Dump.hex(randB)));
-
-        return true;
-    }
 
     public boolean changeSecretKey(byte[] newKey) {
         CommandAPDU command;
@@ -240,7 +159,7 @@ public class UltralightC {
         apdu[7] = newKey[5];
         apdu[8] = newKey[4];
         command = new CommandAPDU(apdu);
-        response = transmit(command);
+        response = null;//transmit(command);
         feedback(command, response);
         if (response.getSW1() != 0x90 || response.getSW2() != 0x00)
             return false;
@@ -252,7 +171,7 @@ public class UltralightC {
         apdu[7] = newKey[1];
         apdu[8] = newKey[0];
         command = new CommandAPDU(apdu);
-        response = transmit(command);
+        response = null;//transmit(command);
         feedback(command, response);
         if (response.getSW1() != 0x90 || response.getSW2() != 0x00)
             return false;
@@ -264,7 +183,7 @@ public class UltralightC {
         apdu[7] = newKey[13];
         apdu[8] = newKey[12];
         command = new CommandAPDU(apdu);
-        response = transmit(command);
+        response = null;//transmit(command);
         feedback(command, response);
         if (response.getSW1() != 0x90 || response.getSW2() != 0x00)
             return false;
@@ -276,7 +195,7 @@ public class UltralightC {
         apdu[7] = newKey[9];
         apdu[8] = newKey[8];
         command = new CommandAPDU(apdu);
-        response = transmit(command);
+        response = null;//transmit(command);
         feedback(command, response);
         return response.getSW1() == 0x90 && response.getSW2() == 0x00;
     }
@@ -313,7 +232,7 @@ public class UltralightC {
         apdu[5] = (byte) page;
         apdu[6] = apdu[7] = apdu[8] = 0x00;
         CommandAPDU command = new CommandAPDU(apdu);
-        ResponseAPDU response = transmit(command);
+        ResponseAPDU response = null;//transmit(command);
         feedback(command, response);
 
         return response.getSW() == (0x90 << 8 | 0x00);
@@ -342,7 +261,7 @@ public class UltralightC {
         }
 
         CommandAPDU command = new CommandAPDU(apdu);
-        ResponseAPDU response = transmit(command);
+        ResponseAPDU response = null;//transmit(command);
         feedback(command, response);
 
         return response.getSW() == (0x90 << 8 | 0x00);
@@ -362,7 +281,7 @@ public class UltralightC {
 
         byte[] apdu = {(byte) 0xFF, (byte) 0xB0, 0x00, (byte) page, 0x04};
         CommandAPDU command = new CommandAPDU(apdu);
-        ResponseAPDU response = transmit(command);
+        ResponseAPDU response = null;//transmit(command);
         feedback(command, response);
         if (response.getSW() != (0x90 << 8 | 0x00)) {
             return null;
@@ -392,7 +311,7 @@ public class UltralightC {
         apdu[4] = 0x04;
         System.arraycopy(data, 0, apdu, 5, 4);
         CommandAPDU command = new CommandAPDU(apdu);
-        ResponseAPDU response = transmit(command);
+        ResponseAPDU response = null;//transmit(command);
         feedback(command, response);
         return response.getSW() == (0x90 << 8 | 0x00);
     }
@@ -410,21 +329,6 @@ public class UltralightC {
     }
 
 
-    public byte[] transmit(byte[] command) {
-        String cmd = BaseEncoding.base16().encode(command);
-        System.out.println(cmd);
-        if (cmd.equals("FFEF0000021A00")) {
-            return BaseEncoding.base16().decode("AF577293FD2F34CA51");
-        }
-        return null;
-
-    }
-
-    protected ResponseAPDU transmit(CommandAPDU command) {
-        return new ResponseAPDU(
-                transmit(command.getBytes())
-        );
-    }
 
     public static void main(String[] args) throws InvalidProtocolBufferException {
 
