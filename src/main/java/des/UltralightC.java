@@ -11,21 +11,12 @@
 package des;
 
 
-import com.google.common.io.BaseEncoding;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.InvalidProtocolBufferException;
-import org.java_websocket.WebSocket;
-import z8.proto.alpha.ClientMessage;
-import z8.proto.alpha.ServerMessage;
-import z8.proto.alpha.TokenAuthenticatedEvent;
 import z8.proto.alpha.TokenFoundEvent;
+import z8.proto.alpha.TrustToken;
 import z8.proto.alpha.UltralightCAuthentication;
 
-import javax.smartcardio.CommandAPDU;
-import javax.smartcardio.ResponseAPDU;
 import java.security.SecureRandom;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Eases the manipulation of MIFARE Ultralight C smart cards.
@@ -107,7 +98,7 @@ public class UltralightC {
     }
 
 
-    public static TokenAuthenticatedEvent requestStage5(UltralightCAuthentication uca) {
+    public static TrustToken requestStage5(UltralightCAuthentication uca) {
         if (uca.getNextStage() != 4) return null;
         byte[] key = new byte[24];
 
@@ -138,12 +129,12 @@ public class UltralightC {
 
         System.out.println("Success!");
 
-        return TokenAuthenticatedEvent.newBuilder().setToken(uca.getToken()).build();
+        return TrustToken.newBuilder().setToken(uca.getToken()).build();
     }
 
 
 
-    public boolean changeSecretKey(byte[] newKey) {
+ /*   public boolean changeSecretKey(byte[] newKey) {
         CommandAPDU command;
         ResponseAPDU response;
         byte[] apdu = new byte[9];
@@ -198,16 +189,16 @@ public class UltralightC {
         response = null;//transmit(command);
         feedback(command, response);
         return response.getSW1() == 0x90 && response.getSW2() == 0x00;
-    }
+    }*/
 
-    //public boolean setOtp(int bitN)
+/*    //public boolean setOtp(int bitN)
     //public boolean setLock0(int bitN)......
     //private setLock(.....general one that other four call
     //public boolean counterInc()
     //private generalwrite to be called by class methods...
     //dump?
 
-    /**
+    *//**
      * Set the page from which authentication is required. The default is
      * 48, which means no restriction.
      *
@@ -217,7 +208,7 @@ public class UltralightC {
      *
      * @param page page number from which authentication is required
      * @return <code>true</code> if set successfully
-     */
+     *//*
     public boolean setAuth0(int page) {
         if (page < 0 || page > 48) {
             return false;
@@ -236,15 +227,15 @@ public class UltralightC {
         feedback(command, response);
 
         return response.getSW() == (0x90 << 8 | 0x00);
-    }
+    }*/
 
-    /**
+ /*   *//**
      * Set write or read+write restriction on page range set in auth1.
      *
      * @param allowRead {@code true} to allow read and prevent write,
      *                  {@code false} to prevent both read and write
      * @return {@code true} on success
-     */
+     *//*
     public boolean setAuth1(boolean allowRead) {
         byte[] apdu = new byte[9];
         apdu[0] = (byte) 0xFF;
@@ -265,15 +256,15 @@ public class UltralightC {
         feedback(command, response);
 
         return response.getSW() == (0x90 << 8 | 0x00);
-    }
+    }*/
 
-    /**
+ /*   *//**
      * Read a 4-byte page.
      *
      * @param page the page number to be read (0<=page<=43)
      * @return a 4-byte array with the page contents in hexadecimal, or
      * {@code null} on error
-     */
+     *//*
     public byte[] read(int page) {
         if (page < 0 || page > 43) {
             return null;
@@ -288,15 +279,15 @@ public class UltralightC {
         }
 
         return response.getData();
-    }
+    }*/
 
-    /**
+/*    *//**
      * Update a 4-byte user page.
      *
      * @param page the number of the page to be updated (4<=page<=39)
      * @param data a 4-byte array containing the data in hexadecimal
      * @return {@code true} on success
-     */
+     *//*
     public boolean update(int page, byte[] data) {
         if (page < 4 || page > 39) {
             // outside of user memory
@@ -314,9 +305,9 @@ public class UltralightC {
         ResponseAPDU response = null;//transmit(command);
         feedback(command, response);
         return response.getSW() == (0x90 << 8 | 0x00);
-    }
+    }*/
 
-    // provide feedback to the user: can be 'disabled' by quoting prints
+/*    // provide feedback to the user: can be 'disabled' by quoting prints
     private static void feedback(CommandAPDU command, ResponseAPDU response) {
         System.out.println(">> " + Dump.hex(command.getBytes(), true));
         System.out.println("<< " + Dump.hex(response.getBytes(), true));
@@ -326,11 +317,11 @@ public class UltralightC {
     private static void feedback(byte[] command, byte[] response) {
         System.out.println(">> " + Dump.hex(command, true));
         System.out.println("<< " + Dump.hex(response, true));
-    }
+    }*/
 
 
 
-    public static void main(String[] args) throws InvalidProtocolBufferException {
+/*    public static void main(String[] args) throws InvalidProtocolBufferException {
 
 
         byte[] iv1 = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -365,14 +356,7 @@ public class UltralightC {
         System.out.println("R&B: " + BaseEncoding.base16().encode(fin));
 
 
-    }
+    }*/
 
-
-    WebSocket ws;
-
-
-    public UltralightC(WebSocket ws) {
-        this.ws = ws;
-    }
 
 }

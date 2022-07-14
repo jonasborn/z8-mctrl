@@ -36,7 +36,7 @@ class UltralightCHandler : WSHandler {
                     ).build()
             } else if (nextStage == 4) {
                 return ServerMessage.newBuilder()
-                    .setTokenAuthenticatedEvent(
+                    .setTrustToken(
                         UltralightC.requestStage5(cm.ultralightCAuthentication)
                     ).build()
             } else {

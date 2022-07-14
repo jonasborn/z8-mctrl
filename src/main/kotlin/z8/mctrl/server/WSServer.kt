@@ -5,8 +5,7 @@ import org.apache.logging.log4j.Logger
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
-import z8.proto.alpha.ServerMessage
-import z8.proto.alpha.TokenAwait
+import z8.proto.alpha.*
 import java.lang.Exception
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
@@ -45,6 +44,74 @@ class WSServer(address: InetSocketAddress?) : WebSocketServer(address) {
                 if (l == "s") {
                     s.stop()
                     break;
+                }
+                if (l == "m") {
+                    sockets.forEach {
+                        if (it.isOpen) it.send(
+                            Packer.pack(
+                                ServerMessage.newBuilder().setModifyDisplayQueue(
+                                    ModifyDisplayQueue.newBuilder()
+                                        .setAnimation(ModifyDisplayQueue.Animation.NONE)
+                                        .setOperation(ModifyDisplayQueue.Operation.OVERWRITE)
+                                        .setLine(0)
+                                        .setData("Line 1 Hallo")
+                                        .setTimeout(1000)
+                                        .build()
+                                ).build(), ""
+                            )
+                        )
+                    }
+
+                    sockets.forEach {
+                        if (it.isOpen) it.send(
+                            Packer.pack(
+                                ServerMessage.newBuilder().setModifyDisplayQueue(
+                                    ModifyDisplayQueue.newBuilder()
+                                        .setOperation(ModifyDisplayQueue.Operation.APPEND)
+                                        .setPosition(1)
+                                        .setLine(1)
+                                        .setData("Line 2")
+                                        .setTimeout(1000)
+                                ).build(), ""
+                            )
+                        )
+                    }
+
+                    sockets.forEach {
+                        if (it.isOpen) it.send(
+                            Packer.pack(
+                                ServerMessage.newBuilder().setModifyDisplayQueue(
+                                    ModifyDisplayQueue.newBuilder()
+                                        .setOperation(ModifyDisplayQueue.Operation.PRINT)
+                                        .setAnimation(ModifyDisplayQueue.Animation.SINGLE_LINE)
+                                        .setLine(0)
+                                ).build(), ""
+                            )
+                        )
+                    }
+
+                    sockets.forEach {
+                        if (it.isOpen) it.send(
+                            Packer.pack(
+                                ServerMessage.newBuilder().setModifyDisplayQueue(
+                                    ModifyDisplayQueue.newBuilder()
+                                        .setOperation(ModifyDisplayQueue.Operation.PRINT)
+                                        .setAnimation(ModifyDisplayQueue.Animation.NONE)
+                                        .setLine(1)
+                                ).build(), ""
+                            )
+                        )
+                    }
+
+                    sockets.forEach {
+                        if (it.isOpen) it.send(
+                            Packer.pack(
+                                ServerMessage.newBuilder().setDisplayQueueRun(
+                                    DisplayQueueRun.newBuilder()
+                                ).build(), ""
+                            )
+                        )
+                    }
                 }
             }
 
