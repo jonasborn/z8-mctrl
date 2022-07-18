@@ -20,12 +20,13 @@ class SessionController {
 
     private var sessionId: String? = null;
 
-    fun getSession(): String {
+    fun getSessionId(): String {
         val content = FacesContext.getCurrentInstance().externalContext
         val request = content.request as HttpServletRequest //Get request from external context
         val response = content.response as HttpServletResponse
 
-        val cookie = request.cookies.find { it.name == COOKIE_NAME }
+        var cookie:Cookie? = null;
+        if (request.cookies != null) cookie = request.cookies.find { it.name == COOKIE_NAME }
         if (cookie == null) {
             sessionId = UUID.randomUUID().toString()
             response.addCookie(
@@ -37,5 +38,7 @@ class SessionController {
 
         return sessionId!!
     }
+
+
 
 }

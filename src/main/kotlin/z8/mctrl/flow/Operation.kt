@@ -1,0 +1,13 @@
+package z8.mctrl.flow
+
+enum class Operation {
+    SHOW_REQUEST_CARD,
+    REQUEST_CARD_AUTH,
+    SHOW_2FA_REQUIRED,
+    SHOW_WAIT_FOR_2FA,
+    SHOW_2FA_SUCCESS,
+    SHOW_2FA_FAILURE,
+    SHOW_PRICE,
+    SHOW_PAYMENT_SUCCESS,
+    SHOW_PAYMENT_FAILURE
+}

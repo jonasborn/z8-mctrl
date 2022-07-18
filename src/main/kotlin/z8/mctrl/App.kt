@@ -30,8 +30,8 @@ fun main(args: Array<String>) {
     DB.init()
     DB.createStructure(false)
 
-    WSServer.startup()
+    //WSServer.startup()
 
-    //runApplication<App>(*args)
+    runApplication<App>(*args)
 }
 

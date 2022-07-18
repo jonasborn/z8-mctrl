@@ -15,8 +15,6 @@ class WSServer(address: InetSocketAddress?) : WebSocketServer(address) {
 
     val logger: Logger = LogManager.getLogger()
 
-
-
     companion object {
         var sockets = mutableListOf<WebSocket>()
         fun startup() {
@@ -116,6 +114,10 @@ class WSServer(address: InetSocketAddress?) : WebSocketServer(address) {
             }
 
 
+        }
+
+        fun send(sm: ServerMessage, sec: String) {
+            Packer.pack(sm, sec)
         }
     }
 

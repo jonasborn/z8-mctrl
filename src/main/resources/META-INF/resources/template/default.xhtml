@@ -3,6 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://java.sun.com/jstl/core"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:b="http://butterfaces.org/components">
 <h:head/>
@@ -11,10 +12,14 @@
 <h:outputStylesheet library="css" name="theme.css"/>
 <h:outputStylesheet library="css" name="z8.css"/>
 
+<c:if test="#{RequestController.highContrast eq true}">
+    <h:outputStylesheet library="css" name="high-contrast.css"/>
+</c:if>
+
 <h:form id="formId">
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <a class="navbar-brand" href="#">Navbar</a>
+        <a class="navbar-brand" href="#">zeroeight</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
