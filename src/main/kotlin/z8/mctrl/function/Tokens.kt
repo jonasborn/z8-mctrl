@@ -1,7 +1,8 @@
 package z8.mctrl.function
 
-import z8.mctrl.db.DB
+import z8.mctrl.db.RDS
 import z8.mctrl.jooq.tables.Token.Companion.TOKEN
+import z8.mctrl.jooq.tables.daos.UserDao
 import z8.mctrl.util.IdUtils
 
 
@@ -13,12 +14,16 @@ class Tokens {
             val id = IdUtils.generateLuhn(idLength)
                 .joinToString("")
 
-            DB.dsl().insertInto(
+            RDS.dsl().insertInto(
                 TOKEN, TOKEN.ID, TOKEN.DEVICE, TOKEN.TIME
             ).values(
                 id, device, System.currentTimeMillis()
             )
             return id
+        }
+
+        fun getUser(tokenId: String): UserDao? {
+            return null //TODO
         }
 
 

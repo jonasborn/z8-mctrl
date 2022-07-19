@@ -37,6 +37,7 @@ class UnPacker {
                         conn.send(sm.toByteArray())
                     }
                 }
+                return m
 
             } catch (e: Exception) {
                 logger.warn("Unable to parse message", e)

@@ -6,5 +6,6 @@ class NotFoundException(message: String?, nfr: NotFoundType) : RuntimeException(
 }
 
 enum class NotFoundType {
-    DEVICE_NOT_FOUND
+    ID_UNKNOWN,
+    DEVICE_UNKNOWN
 }

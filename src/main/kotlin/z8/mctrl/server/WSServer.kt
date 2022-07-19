@@ -5,17 +5,27 @@ import org.apache.logging.log4j.Logger
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
+import org.redisson.api.RBlockingDeque
+import org.redisson.api.RBlockingQueue
+import z8.mctrl.companion.payment.PaymentRequests
 import z8.proto.alpha.*
 import java.lang.Exception
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.util.*
+import java.util.concurrent.BlockingDeque
+import java.util.function.Consumer
+import kotlin.collections.ArrayList
 
 class WSServer(address: InetSocketAddress?) : WebSocketServer(address) {
 
     val logger: Logger = LogManager.getLogger()
+    val openRequestQueues = hashMapOf<String, RBlockingQueue<WebSocket>?>()
+
 
     companion object {
+        val onCloseListeners: ArrayList<Consumer<WebSocket>> = arrayListOf()
+
         var sockets = mutableListOf<WebSocket>()
         fun startup() {
             val s = WSServer(
@@ -41,7 +51,7 @@ class WSServer(address: InetSocketAddress?) : WebSocketServer(address) {
                 }
                 if (l == "s") {
                     s.stop()
-                    break;
+                    break
                 }
                 if (l == "m") {
                     sockets.forEach {
@@ -119,11 +129,15 @@ class WSServer(address: InetSocketAddress?) : WebSocketServer(address) {
         fun send(sm: ServerMessage, sec: String) {
             Packer.pack(sm, sec)
         }
+
+        fun onClose(consumer: Consumer<WebSocket>) {
+            onCloseListeners.add(consumer)
+        }
     }
 
     override fun onOpen(conn: WebSocket?, handshake: ClientHandshake?) {
         if (conn != null) {
-            sockets.add(conn);
+            sockets.add(conn)
             logger.info(
                 "Connection from {}:{} opened",
                 conn.remoteSocketAddress.address.hostAddress,
@@ -135,7 +149,9 @@ class WSServer(address: InetSocketAddress?) : WebSocketServer(address) {
     }
 
     override fun onClose(conn: WebSocket?, code: Int, reason: String?, remote: Boolean) {
-
+        if (conn != null && conn.remoteSocketAddress != null) {
+            onCloseListeners.forEach { it.accept(conn) }
+        }
     }
 
 
@@ -143,7 +159,14 @@ class WSServer(address: InetSocketAddress?) : WebSocketServer(address) {
         if (conn != null && message != null) {
             try {
                 logger.debug("Message received")
-                UnPacker.unpack(conn, message)
+                val sm = UnPacker.unpack(conn, message)
+
+                if (sm != null) {
+                    if (sm.hasWelcomeMessage()) {
+                        PaymentRequests.handleWelcome(conn, sm)
+                    }
+                }
+
             } catch (e: Throwable) {
                 println("ERROR")
             }

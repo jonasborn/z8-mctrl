@@ -19,7 +19,7 @@ import kotlin.system.exitProcess
 
 private val log = KotlinLogging.logger {}
 
-class DB {
+class RDS {
 
 
     companion object {
@@ -90,7 +90,7 @@ class DB {
                 runner.runScript(
                     BufferedReader(
                         InputStreamReader(
-                            DB::class.java.getResourceAsStream("/structure.sql")!!
+                            RDS::class.java.getResourceAsStream("/structure.sql")!!
                         )
                     )
                 )
@@ -104,6 +104,14 @@ class DB {
 
         fun device(): DeviceDao {
             return DeviceDao(dao())
+        }
+
+        fun internalDevice(): InternaldeviceDao {
+            return InternaldeviceDao(dao())
+        }
+
+        fun externalDevice(): ExternaldeviceDao {
+            return ExternaldeviceDao(dao())
         }
 
         fun payment(): PaymentDao {
