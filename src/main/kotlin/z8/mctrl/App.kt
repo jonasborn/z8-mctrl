@@ -28,7 +28,7 @@ fun main(args: Array<String>) {
     )
 
     DB.init()
-    DB.createStructure(false)
+    DB.createStructure(true)
 
     //WSServer.startup()
 
