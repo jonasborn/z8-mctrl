@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: db
--- Erstellungszeit: 19. Jul 2022 um 23:21
+-- Erstellungszeit: 20. Jul 2022 um 23:02
 -- Server-Version: 8.0.1-dmr
 -- PHP-Version: 8.0.19
 
@@ -29,10 +29,10 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `Deposit` (
                            `id` bigint(20) NOT NULL,
+                           `time` bigint(20) NOT NULL,
                            `device` varchar(32) NOT NULL,
                            `token` varchar(32) NOT NULL,
                            `amount` float NOT NULL,
-                           `time` bigint(20) NOT NULL,
                            `origin` int(11) NOT NULL,
                            `details` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -57,8 +57,8 @@ CREATE TABLE `Device` (
 
 CREATE TABLE `ExternalDevice` (
                                   `id` varchar(32) CHARACTER SET utf8mb4 NOT NULL,
-                                  `target` varchar(40) CHARACTER SET utf8mb4 NOT NULL,
                                   `time` bigint(20) NOT NULL,
+                                  `target` varchar(40) CHARACTER SET utf8mb4 NOT NULL,
                                   `secret` varchar(40) CHARACTER SET utf8mb4 NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -82,10 +82,11 @@ CREATE TABLE `InternalDevice` (
 
 CREATE TABLE `Payment` (
                            `id` bigint(20) NOT NULL,
-                           `device` varchar(32) NOT NULL,
+                           `time` bigint(20) NOT NULL,
+                           `internal` varchar(32) NOT NULL,
+                           `external` varchar(32) NOT NULL,
                            `token` varchar(32) NOT NULL,
-                           `amount` float NOT NULL,
-                           `time` bigint(20) NOT NULL
+                           `amount` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -111,11 +112,11 @@ CREATE TABLE `PaymentRequest` (
 
 CREATE TABLE `Payout` (
                           `id` bigint(20) NOT NULL,
+                          `time` bigint(20) NOT NULL,
                           `device` varchar(32) NOT NULL,
                           `token` varchar(32) NOT NULL,
                           `amount` float NOT NULL,
-                          `time` bigint(20) NOT NULL,
-                          `target` int(11) NOT NULL,
+                          `target` int(11) NOT NULL COMMENT 'Target platform, could be cash, service, ...',
                           `details` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -127,9 +128,9 @@ CREATE TABLE `Payout` (
 
 CREATE TABLE `Token` (
                          `id` varchar(32) NOT NULL,
+                         `time` bigint(20) NOT NULL,
                          `device` varchar(32) NOT NULL,
-                         `user` varchar(32) NOT NULL,
-                         `time` bigint(20) NOT NULL
+                         `user` varchar(32) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -140,9 +141,9 @@ CREATE TABLE `Token` (
 
 CREATE TABLE `TokenAction` (
                                `id` int(11) NOT NULL,
+                               `time` bigint(20) NOT NULL,
                                `token` varchar(32) NOT NULL,
                                `device` varchar(32) NOT NULL,
-                               `time` bigint(20) NOT NULL,
                                `user` varchar(32) NOT NULL,
                                `action` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -155,8 +156,9 @@ CREATE TABLE `TokenAction` (
 
 CREATE TABLE `User` (
                         `id` varchar(32) NOT NULL,
-                        `device` varchar(32) NOT NULL,
                         `time` bigint(20) NOT NULL,
+                        `device` varchar(32) NOT NULL,
+                        `mail` varchar(40) NOT NULL,
                         `recovery` varchar(40) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -168,9 +170,9 @@ CREATE TABLE `User` (
 
 CREATE TABLE `UserActions` (
                                `id` int(11) NOT NULL,
+                               `time` bigint(20) NOT NULL,
                                `device` varchar(32) NOT NULL,
                                `user` varchar(32) NOT NULL,
-                               `time` bigint(20) NOT NULL,
                                `issuer` varchar(32) NOT NULL,
                                `target` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -211,8 +213,9 @@ ALTER TABLE `InternalDevice`
 --
 ALTER TABLE `Payment`
     ADD PRIMARY KEY (`id`),
-    ADD KEY `fk_Payment_device__id` (`device`),
-    ADD KEY `fk_Payment_token__id` (`token`);
+    ADD KEY `fk_Payment_device__id` (`internal`),
+    ADD KEY `fk_Payment_token__id` (`token`),
+    ADD KEY `fk_Payment_external__id` (`external`);
 
 --
 -- Indizes für die Tabelle `PaymentRequest`
@@ -318,7 +321,8 @@ ALTER TABLE `ExternalDevice`
 -- Constraints der Tabelle `Payment`
 --
 ALTER TABLE `Payment`
-    ADD CONSTRAINT `fk_Payment_device__id` FOREIGN KEY (`device`) REFERENCES `Device` (`id`),
+    ADD CONSTRAINT `fk_Payment_external__id` FOREIGN KEY (`external`) REFERENCES `ExternalDevice` (`id`),
+    ADD CONSTRAINT `fk_Payment_internal__id` FOREIGN KEY (`internal`) REFERENCES `InternalDevice` (`id`),
     ADD CONSTRAINT `fk_Payment_token__id` FOREIGN KEY (`token`) REFERENCES `Token` (`id`);
 
 --

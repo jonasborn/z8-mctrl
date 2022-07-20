@@ -9,37 +9,66 @@
 >
 <h:body>
 
-    <ui:composition template="../template/default.xhtml">
+    <ui:composition template="../template/terminal.xhtml">
         <ui:define name="content">
 
             <div class="jumbotron mb-3">
-                <h1 class="display-3">Current budget</h1>
-                <p class="lead">This page allows you to generate a new card for printing purpose</p>
-                <hr class="my-4"/>
-                <p class="lead">Simply check the generated output and press the download button at the end of the page</p>
-                <p class="lead">The generated zip file will include everything needed to create a new card!</p>
-                <b:commandLink id="input"
-                               value="Refresh"
-                               styleClass="btn btn-primary"
-                               ajaxDisableLinkOnRequest="true"
-                               ajaxShowWaitingDotsOnRequest="true"
-                               ajaxDisableRenderRegionsOnRequest="true"
-                               action="#{QRCodeController.update()}"
-                               rendered="true">
-                    <f:ajax render="clicks"/>
-                </b:commandLink>
+                <h1 class="display-3">Payments</h1>
+                <p>Overview of all your payments</p>
             </div>
 
-            <div class="mt-2">
-                <h1>Welcome</h1>
-            </div>
             <h:panelGroup id="clicks" layout="block">
-                <div class="card text-white bg-primary mb-3">
-                    <div class="card-header">Card preview</div>
+                <div class="card bg-secondary mb-3">
                     <div class="card-body">
                         <div class="d-flex justify-content-center">
-                            <img src="#{QRCodeController.image}" width="50%" alt="Image of token"/>
+
+                            <h:form id="formId">
+
+                                <b:table id="table"
+                                         var="rowItem"
+                                         value="#{PaymentsController.value}"
+                                         model="#{PaymentsController.tableModel}"
+                                         singleSelectionListener="#{PaymentsController}"
+                                         tableBordered="false"
+                                         tableCondensed="false"
+                                         tableStriped="true"
+                                         ajaxDisableRenderRegionsOnRequest="true"
+                                         styleClass="w-100"
+                                         rendered="true">
+                                    <!-- at this time you have to put an ajax tag to activate some features-->
+                                    <f:ajax render="formId:selectedRow"/>
+                                    <b:column id="column1"
+                                              label="Time/Date">#{DateUtils.toHumanTime(rowItem.time)}/#{DateUtils.toHumanDate(rowItem.time)} </b:column>
+                                    <b:column id="column2"
+                                              sortColumnEnabled="false"
+                                              label="Token">
+                                        #{rowItem.token.substring(0, 4).concat("...")}
+                                    </b:column>
+                                    <b:column id="column3"
+                                              label="WHAT">
+                                        #{rowItem.external}
+                                    </b:column>
+                                </b:table>
+
+                            </h:form>
+
                         </div>
+                        <b:commandLink value="Previous"
+                                       styleClass="btn btn-primary"
+                                       ajaxDisableLinkOnRequest="true"
+                                       ajaxShowWaitingDotsOnRequest="true"
+                                       ajaxDisableRenderRegionsOnRequest="true"
+                                       action="#{NewTokenController.regenerate()}"
+                                       rendered="true">
+                        </b:commandLink>
+                        <b:commandLink value="Next"
+                                       styleClass="btn btn-primary"
+                                       ajaxDisableLinkOnRequest="true"
+                                       ajaxShowWaitingDotsOnRequest="true"
+                                       ajaxDisableRenderRegionsOnRequest="true"
+                                       action="#{NewTokenController.regenerate()}"
+                                       rendered="true">
+                        </b:commandLink>
                     </div>
                 </div>
             </h:panelGroup>

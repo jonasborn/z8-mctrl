@@ -11,8 +11,6 @@
 
 # Used to import the database manually
 
-set -e
-
 trim() {
     var="$*"
     # remove leading whitespace characters

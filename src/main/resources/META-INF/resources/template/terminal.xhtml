@@ -7,7 +7,14 @@
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:b="http://butterfaces.org/components">
 <h:head>
-
+    <style>
+        footer {
+            position: fixed;
+            height: 100px;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
 </h:head>
 <body class="m-5">
 
@@ -34,23 +41,19 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Features</a>
+                    <a class="nav-link" href="#">Payments</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Pricing</a>
+                    <a class="nav-link" href="#">Deposits</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">About</a>
+                    <a class="nav-link" href="#">Payouts</a>
                 </li>
-                <li class="nav-item dropdown" style="display:#{DefaultNavController.admin}">
-                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Action</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <a class="dropdown-item" href="#">Something else here</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Separated link</a>
-                    </div>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Charge</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Settings</a>
                 </li>
             </ul>
         </div>
@@ -65,5 +68,8 @@
     <b:activateLibraries/>
 </h:form>
 
+<footer class="fixed-bottom">
+    <!--<img src="#{QRCodeController.generate('Hallo')}" style="width: 100px"/>-->
+</footer>
 </body>
 </html>
