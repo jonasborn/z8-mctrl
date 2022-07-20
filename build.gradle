@@ -116,6 +116,7 @@ dependencies {
     }
 
     implementation 'javax.inject:javax.inject:1'
+    implementation 'io.nayuki:qrcodegen:1.8.0'
 
 
     if (JavaVersion.current().isJava9Compatible()) {

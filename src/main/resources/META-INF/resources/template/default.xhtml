@@ -6,7 +6,16 @@
       xmlns:c="http://java.sun.com/jstl/core"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:b="http://butterfaces.org/components">
-<h:head/>
+<h:head>
+    <style>
+        footer {
+            position: fixed;
+            height: 200px;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</h:head>
 <body class="m-5">
 
 <h:outputStylesheet library="css" name="theme.css"/>
@@ -18,7 +27,7 @@
 
 <h:form id="formId">
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
         <a class="navbar-brand" href="#">zeroeight</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -62,5 +71,9 @@
     <h:outputScript library="js" name="z8.js"/>
     <b:activateLibraries/>
 </h:form>
+
+<footer class="fixed-bottom">
+    <img src="#{QRCodeController.generate('Hallo')}"/>
+</footer>
 </body>
 </html>

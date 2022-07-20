@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:b="http://butterfaces.org/components"
+>
+<h:body>
+
+    <ui:composition template="../template/default.xhtml">
+        <ui:define name="content">
+
+            <div class="jumbotron mb-3">
+                <h1 class="display-3">Current budget</h1>
+                <p class="lead">See what you've got</p>
+                <hr class="my-4"/>
+                <p class="lead">Simply check the generated output and press the download button at the end of the page</p>
+                <p class="lead">The generated zip file will include everything needed to create a new card!</p>
+                <b:commandLink id="input"
+                               value="Refresh"
+                               styleClass="btn btn-primary"
+                               ajaxDisableLinkOnRequest="true"
+                               ajaxShowWaitingDotsOnRequest="true"
+                               ajaxDisableRenderRegionsOnRequest="true"
+                               action="#{QRCodeController.update()}"
+                               rendered="true">
+                    <f:ajax render="clicks"/>
+                </b:commandLink>
+            </div>
+
+            <div class="mt-2">
+                <h1>Welcome</h1>
+            </div>
+            <h:panelGroup id="clicks" layout="block">
+
+            </h:panelGroup>
+        </ui:define>
+    </ui:composition>
+
+</h:body>
+
+</html>
