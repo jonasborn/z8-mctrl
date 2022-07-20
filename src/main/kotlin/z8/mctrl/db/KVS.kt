@@ -3,27 +3,27 @@ package z8.mctrl.db
 import org.redisson.Redisson
 import org.redisson.api.*
 import org.redisson.config.Config
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
 import z8.mctrl.companion.payment.PaymentRequests
 import z8.mctrl.db.forced.PaymentRequestStatus
 import java.util.function.Consumer
 
-class KVS {
+@Component
+class KVS @Autowired constructor(val config: z8.mctrl.config.Config) {
 
     //TODO https://github.com/redisson/redisson/wiki/7.-Distributed-collections
-
-    companion object {
-
         var client: RedissonClient? = null
 
         fun init() {
-            val config = Config()
-            config.useClusterServers()
+            val c = Config()
+            c.useClusterServers()
                 .addNodeAddress(
                     "redis://"
-                            + z8.mctrl.config.Config.get("redis.host")
-                            + ":" + z8.mctrl.config.Config.get("redis.port")
+                            + config.get("redis.host")
+                            + ":" + config.get("redis.port")
                 )
-            client = Redisson.create(config)
+            client = Redisson.create(c)
         }
 
         fun <T> set(value: T, vararg key: String) {
@@ -74,6 +74,5 @@ class KVS {
             return Pair(id, queue)
         }
 
-    }
 
 }

@@ -1,6 +1,7 @@
 package z8.mctrl.util
 
-import z8.mctrl.function.sn.SecurityNumber
+
+import z8.mctrl.function.sn.SecurityNumbers
 import z8.mctrl.function.token.TokenId
 import java.awt.Color
 import java.awt.Font
@@ -23,7 +24,7 @@ class CardGenerator {
             )
         }
 
-        fun generate(id: TokenId, sn: SecurityNumber): BufferedImage {
+        fun generate(id: TokenId, sn: SecurityNumbers.SecurityNumber): BufferedImage {
 
             val img = BufferedImage(1011, 637, BufferedImage.TYPE_BYTE_BINARY)
             val g = img.graphics as Graphics2D

@@ -5,14 +5,13 @@ import org.jasypt.iv.RandomIvGenerator
 import z8.mctrl.config.Config
 import java.nio.ByteBuffer
 
-class Flow {
+class Flow(val config: Config) {
 
-    companion object {
         var jasypt: StandardPBEByteEncryptor? = null;
 
         init {
             jasypt = StandardPBEByteEncryptor()
-            val password = Config.get("session.password")
+            val password = config.get("session.password")
             jasypt!!.setPassword(password);
             jasypt!!.setIvGenerator(RandomIvGenerator())
         }
@@ -32,5 +31,5 @@ class Flow {
         fun unpack(byte: ByteArray) {
 
         }
-    }
+
 }

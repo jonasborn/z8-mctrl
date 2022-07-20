@@ -9,57 +9,56 @@ import z8.mctrl.function.token.TokenId
 import z8.mctrl.util.IdUtils
 import java.math.BigInteger
 
-class SecurityNumber(id: String) {
+class SecurityNumbers(config: Config) {
 
-    companion object {
+    class SecurityNumber(securityNumbers: SecurityNumbers, id: String) {
+        var base: String? = null
+        var check: String? = null
 
-        private val digest: StandardByteDigester = StandardByteDigester()
-        private var secret: String? = null
 
         init {
-            digest.setIterations(100)
-            digest.setAlgorithm("SHA-256")
-            digest.setSaltGenerator(ZeroSaltGenerator())
-            secret = Config.get("sn.secret")
+            base = securityNumbers.generateSecurityNumberBase(id)
+            check = IdUtils.generateISO7064Check(base!!)
         }
 
-        fun generateSecurityNumberBase(id: String): String {
-            val input: ByteArray = (id.toByteArray() + secret!!.toByteArray())
-            val bytes = Hashing.sha256().hashBytes(
-                digest.digest(input)
-            ).asBytes()
-            return BigInteger(bytes).abs().toString().substring(0, 7)
+        fun getBaseParts(): List<String> {
+            return base!!.toCharArray().toList().chunked(3).map {
+                it.joinToString("")
+            }
+        }
+
+        fun getParts(): List<String> {
+            return get().toCharArray().toList().chunked(3).map {
+                it.joinToString("")
+            }
+        }
+
+        fun get(): String {
+            return base!! + check!!
+        }
+
+        fun getReadable(): String {
+            return getParts().joinToString(" ")
         }
     }
 
-    var base: String? = null
-    var check: String? = null
+    private val digest: StandardByteDigester = StandardByteDigester()
+    private var secret: String? = null
 
     init {
-        base = generateSecurityNumberBase(id)
-        check = IdUtils.generateISO7064Check(base!!)
+        digest.setIterations(100)
+        digest.setAlgorithm("SHA-256")
+        digest.setSaltGenerator(ZeroSaltGenerator())
+        secret = config.get("sn.secret")
     }
 
-    constructor(id: TokenId) : this(id.get())
-
-    fun getBaseParts(): List<String> {
-        return base!!.toCharArray().toList().chunked(3).map {
-            it.joinToString("")
-        }
+    fun generateSecurityNumberBase(id: String): String {
+        val input: ByteArray = (id.toByteArray() + secret!!.toByteArray())
+        val bytes = Hashing.sha256().hashBytes(
+            digest.digest(input)
+        ).asBytes()
+        return BigInteger(bytes).abs().toString().substring(0, 7)
     }
 
-    fun getParts(): List<String> {
-        return get().toCharArray().toList().chunked(3).map {
-            it.joinToString("")
-        }
-    }
-
-    fun get(): String {
-        return base!! + check!!
-    }
-
-    fun getReadable(): String {
-        return getParts().joinToString(" ")
-    }
 
 }

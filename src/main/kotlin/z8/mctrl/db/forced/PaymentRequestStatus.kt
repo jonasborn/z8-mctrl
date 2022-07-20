@@ -6,5 +6,6 @@ enum class PaymentRequestStatus() {
     FINISHED,
     DECLINED,
     TWO_FACTOR,
-    FAILURE
+    FAILURE,
+    INTERNAL_DEVICE_MISSING
 }
