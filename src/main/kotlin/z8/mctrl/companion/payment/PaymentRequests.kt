@@ -2,8 +2,11 @@ package z8.mctrl.companion.payment
 
 import org.java_websocket.WebSocket
 import org.redisson.api.RBlockingQueue
-import z8.mctrl.companion.device.InternalDevice
+import z8.mctrl.companion.device.InternalDevices
 import z8.mctrl.db.KVS
+import z8.mctrl.db.RDS
+import z8.mctrl.db.forced.PaymentRequestStatus
+import z8.mctrl.jooq.tables.pojos.Paymentrequest
 import z8.mctrl.server.Packer
 import z8.mctrl.server.WSServer
 import z8.proto.alpha.ClientMessage
@@ -15,32 +18,9 @@ class PaymentRequests {
 
     class PaymentRequestDetails(val id: String, val source: String, val target: String, val amount: Double)
 
-    enum class PaymentRequestStatus {
-        STARTED,
-        PENDING,
-        FINISHED,
-        DECLINED,
-        TWO_FACTOR
-    }
+
 
     companion object {
-        fun getStatus(id: String): PaymentRequestStatus? {
-            val b = KVS.paymentRequestStatus(id) ?: return null
-            return b.get()
-        }
-
-        fun setStatus(id: String, status: PaymentRequestStatus) {
-            KVS.paymentRequestStatus(id)?.set(status)
-        }
-
-        fun getDetails(id: String): PaymentRequestDetails? {
-            val b = KVS.paymentRequestDetails(id) ?: return null
-            return b.get()
-        }
-
-        fun setDetails(id: String, status: PaymentRequestDetails) {
-            KVS.paymentRequestDetails(id)?.set(status)
-        }
 
         fun addToQueue(internalDeviceId: String, id: String) {
             KVS.paymentRequestQueue(internalDeviceId)?.add(id)
@@ -48,6 +28,19 @@ class PaymentRequests {
 
         fun listenToQueue(internalDeviceId: String, consumer: Consumer<String>): Pair<Int?, RBlockingQueue<String>?> {
             return KVS.paymentRequestQueue(internalDeviceId, consumer)
+        }
+
+        fun get(id: String): Paymentrequest? {
+            return   RDS.paymentRequest().fetchOneById(id)
+
+        }
+
+        fun add(pr: Paymentrequest) {
+            RDS.paymentRequest().insert(pr)
+        }
+
+        fun update(pr: Paymentrequest) {
+            RDS.paymentRequest().update(pr)
         }
 
         /**
@@ -58,19 +51,25 @@ class PaymentRequests {
          */
         fun handleWelcome(conn: WebSocket, cm: ClientMessage) {
             if (cm.hasWelcomeMessage()) {
-
                 val (id, q) = listenToQueue(cm.source) { id ->
-                    val details = getDetails(id)
 
-                    if (details != null) {
-                        val packed = Packer.pack(
-                            ServerMessage.newBuilder().setTokenAwait(
-                                TokenAwait.newBuilder()
-                            ).build(),
-                            InternalDevice.getPassword(details.target)
-                        )
-                        conn.send(packed)
-                        setStatus(details.id, PaymentRequestStatus.PENDING)
+                    val paymentRequest = get(cm.id)
+
+                    if (paymentRequest?.target != null) {
+                        val ind = InternalDevices.get(paymentRequest.target!!)
+                        if (ind?.secret != null) {
+                            val packed = Packer.pack(
+                                ServerMessage.newBuilder().setTokenAwait(
+                                    TokenAwait.newBuilder()
+                                ).build(),
+                                ind.secret!!
+                            )
+                            conn.send(packed)
+                            paymentRequest.status = PaymentRequestStatus.STARTED
+                            update(paymentRequest)
+                        } else {
+                            paymentRequest.status = PaymentRequestStatus.FAILURE
+                        }
                     }
                 }
 

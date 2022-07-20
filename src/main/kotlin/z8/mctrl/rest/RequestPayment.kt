@@ -1,5 +1,6 @@
 package z8.mctrl.rest
 
+import org.jooq.meta.derby.sys.Sys
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -7,12 +8,13 @@ import org.springframework.web.bind.annotation.RestController
 import z8.mctrl.db.RDS
 import z8.mctrl.exception.*
 import z8.mctrl.companion.payment.PaymentRequests
+import z8.mctrl.db.forced.PaymentRequestStatus
+import z8.mctrl.jooq.tables.pojos.Paymentrequest
 import z8.mctrl.voyager.Voyager
 import java.util.*
 
 @RestController //357
 class RequestPayment {
-
 
     @GetMapping("/payment/request")
     fun request(
@@ -35,14 +37,9 @@ class RequestPayment {
 
         val id = UUID.randomUUID().toString()
 
-        PaymentRequests.setStatus(id, PaymentRequests.PaymentRequestStatus.PENDING)
-
-        PaymentRequests.setDetails(
-            id, PaymentRequests.PaymentRequestDetails(
-                id,
-                externalDevice,
-                internalDevice,
-                amount
+        RDS.paymentRequest().insert(
+            Paymentrequest(
+                id, System.currentTimeMillis(), externalDevice, internalDevice, amount, PaymentRequestStatus.STARTED
             )
         )
 
@@ -56,8 +53,9 @@ class RequestPayment {
     fun status(
         @RequestParam(name = "id", required = true) id: String
     ) {
-        val status = PaymentRequests.getStatus(id) ?: ResponseEntity.noContent()
-        ResponseEntity.accepted().body(status)
+        val entry = PaymentRequests.get(id)
+        if (entry?.status == null) ResponseEntity.notFound()
+        ResponseEntity.accepted().body(entry!!.status)
 
     }
 

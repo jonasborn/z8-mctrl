@@ -160,6 +160,14 @@ jooq {
                     database {
                         name = props.get("database.build.jooq.driver") as String
                         inputSchema = props.get("database.name") as String
+                        forcedTypes {
+                            forcedType {
+                                // Specify the Java type of your custom type. This corresponds to the Converter's <U> type.
+                                userType = 'z8.mctrl.db.forced.PaymentRequestStatus'
+                                enumConverter = true
+                                includeExpression = 'PAYMENTREQUEST\\.STATUS'
+                            }
+                        }
                     }
                     target {
                         packageName = "z8.mctrl.jooq"
@@ -167,7 +175,7 @@ jooq {
                     generate {
                         deprecated = false
                         records = true
-                        immutablePojos = true
+                        immutablePojos = false
                         fluentSetters = true
                         daos = true
                     }

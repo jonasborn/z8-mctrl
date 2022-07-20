@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: db
--- Erstellungszeit: 19. Jul 2022 um 19:41
+-- Erstellungszeit: 19. Jul 2022 um 23:21
 -- Server-Version: 8.0.1-dmr
 -- PHP-Version: 8.0.19
 
@@ -87,6 +87,21 @@ CREATE TABLE `Payment` (
                            `amount` float NOT NULL,
                            `time` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `PaymentRequest`
+--
+
+CREATE TABLE `PaymentRequest` (
+                                  `id` varchar(32) CHARACTER SET utf8mb4 NOT NULL,
+                                  `time` bigint(20) NOT NULL,
+                                  `source` varchar(32) CHARACTER SET utf8mb4 NOT NULL,
+                                  `target` varchar(32) CHARACTER SET utf8mb4 NOT NULL,
+                                  `amount` float NOT NULL,
+                                  `status` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -200,6 +215,14 @@ ALTER TABLE `Payment`
     ADD KEY `fk_Payment_token__id` (`token`);
 
 --
+-- Indizes für die Tabelle `PaymentRequest`
+--
+ALTER TABLE `PaymentRequest`
+    ADD PRIMARY KEY (`id`),
+    ADD KEY `fk_PaymentRequest_source__id` (`source`),
+    ADD KEY `fk_PaymentRequest_target__id` (`target`);
+
+--
 -- Indizes für die Tabelle `Payout`
 --
 ALTER TABLE `Payout`
@@ -297,6 +320,13 @@ ALTER TABLE `ExternalDevice`
 ALTER TABLE `Payment`
     ADD CONSTRAINT `fk_Payment_device__id` FOREIGN KEY (`device`) REFERENCES `Device` (`id`),
     ADD CONSTRAINT `fk_Payment_token__id` FOREIGN KEY (`token`) REFERENCES `Token` (`id`);
+
+--
+-- Constraints der Tabelle `PaymentRequest`
+--
+ALTER TABLE `PaymentRequest`
+    ADD CONSTRAINT `fk_PaymentRequest_source__id` FOREIGN KEY (`source`) REFERENCES `ExternalDevice` (`id`),
+    ADD CONSTRAINT `fk_PaymentRequest_target__id` FOREIGN KEY (`target`) REFERENCES `InternalDevice` (`id`);
 
 --
 -- Constraints der Tabelle `Payout`

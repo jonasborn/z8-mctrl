@@ -106,6 +106,10 @@ class RDS {
             return DeviceDao(dao())
         }
 
+        fun paymentRequest(): PaymentrequestDao {
+            return PaymentrequestDao(dao())
+        }
+
         fun internalDevice(): InternaldeviceDao {
             return InternaldeviceDao(dao())
         }

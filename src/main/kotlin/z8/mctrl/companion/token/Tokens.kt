@@ -1,4 +1,4 @@
-package z8.mctrl.function
+package z8.mctrl.companion.token
 
 import z8.mctrl.db.RDS
 import z8.mctrl.jooq.tables.Token.Companion.TOKEN

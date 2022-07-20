@@ -4,6 +4,7 @@ import org.redisson.Redisson
 import org.redisson.api.*
 import org.redisson.config.Config
 import z8.mctrl.companion.payment.PaymentRequests
+import z8.mctrl.db.forced.PaymentRequestStatus
 import java.util.function.Consumer
 
 class KVS {
@@ -53,7 +54,7 @@ class KVS {
             )
         }
 
-        fun paymentRequestStatus(id: String): RBucket<PaymentRequests.PaymentRequestStatus>? {
+        fun paymentRequestStatus(id: String): RBucket<PaymentRequestStatus>? {
             return getBucket(
                 "payment", "request", id, "status"
             )
