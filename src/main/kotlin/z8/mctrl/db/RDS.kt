@@ -15,6 +15,7 @@ import java.io.InputStreamReader
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.PreparedStatement
+import javax.annotation.PostConstruct
 import kotlin.system.exitProcess
 
 
@@ -41,6 +42,7 @@ class RDS(val config: Config) {
                 config.int("database.port", 3306) + "/"
     }
 
+    @PostConstruct
     fun init() {
         try {
             log.debug { "Attempting to connect to database" }
@@ -101,20 +103,20 @@ class RDS(val config: Config) {
         return DepositDao(dao())
     }
 
-    fun device(): DeviceDao {
-        return DeviceDao(dao())
+    fun terminalDevice(): TerminalDeviceDao {
+        return TerminalDeviceDao(dao())
     }
 
-    fun paymentRequest(): PaymentrequestDao {
-        return PaymentrequestDao(dao())
+    fun paymentRequest(): PaymentRequestDao {
+        return PaymentRequestDao(dao())
     }
 
-    fun internalDevice(): InternaldeviceDao {
-        return InternaldeviceDao(dao())
+    fun internalDevice(): InternalDeviceDao {
+        return InternalDeviceDao(dao())
     }
 
-    fun externalDevice(): ExternaldeviceDao {
-        return ExternaldeviceDao(dao())
+    fun externalDevice(): ExternalDeviceDao {
+        return ExternalDeviceDao(dao())
     }
 
     fun payment(): PaymentDao {
@@ -125,16 +127,16 @@ class RDS(val config: Config) {
         return PayoutDao(dao())
     }
 
-    fun tokenAction(): TokenactionDao {
-        return TokenactionDao(dao())
+    fun tokenAction(): TokenActionDao {
+        return TokenActionDao(dao())
     }
 
     fun token(): TokenDaoExtended {
         return TokenDaoExtended(dao())
     }
 
-    fun userActions(): UseractionsDao {
-        return UseractionsDao(dao())
+    fun userActions(): UserActionsDao {
+        return UserActionsDao(dao())
     }
 
     fun user(): UserDao {

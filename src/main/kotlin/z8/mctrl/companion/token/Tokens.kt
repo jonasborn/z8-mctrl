@@ -15,7 +15,7 @@ class Tokens(val rds: RDS) {
             .joinToString("")
 
         rds.dsl().insertInto(
-            TOKEN, TOKEN.ID, TOKEN.DEVICE, TOKEN.TIME
+            TOKEN, TOKEN.ID, TOKEN.TERMINAL, TOKEN.TIME
         ).values(
             id, device, System.currentTimeMillis()
         )

@@ -3,7 +3,7 @@ package z8.mctrl.db
 import org.jooq.Configuration
 import org.jooq.meta.derby.sys.Sys
 import z8.mctrl.jooq.tables.daos.TokenDao
-import z8.mctrl.jooq.tables.pojos.Token
+import z8.mctrl.jooq.tables.pojos.TokenObject
 import z8.mctrl.util.IdUtils
 
 class TokenDaoExtended(conf: Configuration) : TokenDao(conf) {
@@ -12,7 +12,7 @@ class TokenDaoExtended(conf: Configuration) : TokenDao(conf) {
         val id = IdUtils.generateLuhn(16)
             .joinToString("")
         this.insert(
-            Token(id, System.currentTimeMillis(), user, device)
+            TokenObject(id, System.currentTimeMillis(), user, device)
         )
         return id
     }

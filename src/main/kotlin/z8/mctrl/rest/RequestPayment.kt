@@ -11,7 +11,7 @@ import z8.mctrl.db.RDS
 import z8.mctrl.exception.*
 import z8.mctrl.companion.payment.PaymentRequests
 import z8.mctrl.db.forced.PaymentRequestStatus
-import z8.mctrl.jooq.tables.pojos.Paymentrequest
+import z8.mctrl.jooq.tables.pojos.PaymentRequestObject
 import z8.mctrl.voyager.Voyager
 import java.util.*
 
@@ -46,7 +46,7 @@ class RequestPayment @Autowired constructor(
         val id = UUID.randomUUID().toString()
 
         rds!!.paymentRequest().insert(
-            Paymentrequest(
+            PaymentRequestObject(
                 id, System.currentTimeMillis(), externalDevice, internalDevice, amount, PaymentRequestStatus.STARTED
             )
         )

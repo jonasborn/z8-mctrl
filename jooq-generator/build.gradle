@@ -1,0 +1,14 @@
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets.main.java.srcDirs = [
+        "src"
+]
+
+
+dependencies {
+    implementation 'org.jooq:jooq-codegen:3.16.7'
+}

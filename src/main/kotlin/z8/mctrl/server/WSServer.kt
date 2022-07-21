@@ -12,7 +12,7 @@ import z8.mctrl.companion.payment.PaymentRequests
 import z8.mctrl.config.Config
 import z8.mctrl.db.KVS
 import z8.mctrl.db.RDS
-import z8.mctrl.jooq.tables.daos.InternaldeviceDao
+import z8.mctrl.jooq.tables.daos.InternalDeviceDao
 import z8.proto.alpha.*
 import java.lang.Exception
 import java.net.InetSocketAddress

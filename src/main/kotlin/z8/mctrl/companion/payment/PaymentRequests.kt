@@ -11,7 +11,7 @@ import z8.mctrl.config.Config
 import z8.mctrl.db.KVS
 import z8.mctrl.db.RDS
 import z8.mctrl.db.forced.PaymentRequestStatus
-import z8.mctrl.jooq.tables.pojos.Paymentrequest
+import z8.mctrl.jooq.tables.pojos.PaymentRequestObject
 import z8.mctrl.server.Packer
 import z8.mctrl.server.WSServer
 import z8.proto.alpha.ClientMessage
@@ -35,16 +35,16 @@ class PaymentRequests @Autowired constructor(val config: Config, val rds: RDS, v
         return kvs.paymentRequestQueue(internalDeviceId, consumer)
     }
 
-    fun get(id: String): Paymentrequest? {
+    fun get(id: String): PaymentRequestObject? {
         return rds.paymentRequest().fetchOneById(id)
 
     }
 
-    fun add(pr: Paymentrequest) {
+    fun add(pr: PaymentRequestObject) {
         rds.paymentRequest().insert(pr)
     }
 
-    fun update(pr: Paymentrequest) {
+    fun update(pr: PaymentRequestObject) {
         rds.paymentRequest().update(pr)
     }
 
@@ -61,15 +61,18 @@ class PaymentRequests @Autowired constructor(val config: Config, val rds: RDS, v
                 logger.debug("Received PaymentRequest request for {} on {}", id, config.get("server.id"))
                 val paymentRequest = get(id)
 
-                if (paymentRequest?.target != null) {
-                    val ind = internalDevices.get(paymentRequest.target!!)
+                if (paymentRequest?.internal != null) {
+                    val ind = internalDevices.get(paymentRequest.internal!!)
                     if (ind?.secret != null) {
+
+
 
                         conn.sendWithSecret(
                             ServerMessage.newBuilder().setTokenAwait(
                                 TokenAwait.newBuilder()
                             ).build(), ind.secret!!
                         )
+
 
                         paymentRequest.status = PaymentRequestStatus.STARTED
                         update(paymentRequest)
