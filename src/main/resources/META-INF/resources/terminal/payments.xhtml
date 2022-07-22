@@ -14,59 +14,81 @@
         <ui:define name="content">
 
             <div class="jumbotron mb-3">
-                <h1 class="display-3">Your #{PaymentsController.queryTotalAmount()} payments</h1>
+
+                <c:set var="totalAmount" value="#{PaymentController.totalAmount}" scope="request"/>
+                <c:choose>
+                    <c:when test="#{totalAmount == 1}">
+                        <h1 class="display-3">Your payment</h1>
+                    </c:when>
+                    <c:otherwise>
+                        <h1 class="display-3">Your #{totalAmount} payments</h1>
+                    </c:otherwise>
+                </c:choose>
                 <p>Overview of all your payments</p>
             </div>
 
             <h:panelGroup id="clicks" layout="block">
                 <div class="card bg-secondary mb-3">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-center">
 
-                            <h:form id="formId">
+                    <div class="card-body">
+                        <h:form id="formId">
+                            <div class="card-header">Table #{PaymentController.page}</div>
+                            <div class="d-flex justify-content-center">
 
                                 <b:table id="table"
                                          var="rowItem"
-                                         value="#{PaymentsController.data}"
-                                         model="#{PaymentsController.tableModel}"
-                                         singleSelectionListener="#{PaymentsController}"
-                                         tableBordered="false"
-                                         tableCondensed="false"
+                                         value="#{PaymentController.data}"
+                                         model="#{PaymentController.model}"
+                                         singleSelectionListener="#{PaymentController}"
+                                         tableBordered="true"
+                                         tableCondensed="true"
                                          tableStriped="true"
                                          ajaxDisableRenderRegionsOnRequest="true"
                                          styleClass="w-100"
                                          rendered="true">
                                     <!-- at this time you have to put an ajax tag to activate some features-->
-                                    <f:ajax render="formId:selectedRow"/>
+                                    <f:ajax render="formId"/>
                                     <b:column id="column1"
-                                              label="Time/Date">#{DateUtils.toHumanTime(rowItem.time)}/#{DateUtils.toHumanDate(rowItem.time)} </b:column>
+                                              label="Date / Time">#{DateUtils.toHumanDate(rowItem.time)} / #{DateUtils.toHumanTime(rowItem.time)}</b:column>
                                     <b:column id="column2"
                                               sortColumnEnabled="false"
                                               label="Token">
                                         #{rowItem.token.substring(0, 4).concat("...")}
                                     </b:column>
                                     <b:column id="column3"
-                                              label="WHAT">
-                                        #{rowItem.target}
+                                              label="Device">
+                                        #{rowItem.title}
+                                    </b:column>
+                                    <b:column id="column4"
+                                              label="Details">
+                                        #{rowItem.details}
+                                    </b:column>
+                                    <b:column id="column5"
+                                              label="Amount">
+                                        #{rowItem.amount}€
                                     </b:column>
                                 </b:table>
 
-                            </h:form>
 
+                            </div>
+                        </h:form>
+                        <h:form id="buttons">
+                        <div class="d-flex justify-content-start">
+                            <c:forEach var="pageNumber" begin="1" end="#{PaymentController.totalPages}">
+                                <div class="mr-2">
+                                    <b:commandLink value="#{pageNumber}"
+                                                   styleClass="btn btn-sm #{(pageNumber == PaymentController.page) ? 'btn-outline-primary' : 'btn-primary'}"
+                                                   ajaxDisableLinkOnRequest="true"
+                                                   ajaxShowWaitingDotsOnRequest="false"
+                                                   ajaxDisableRenderRegionsOnRequest="true"
+                                                   action="#{PaymentController.changePage(pageNumber)}"
+                                                   rendered="true">
+                                        <f:ajax render="formId"/>
+                                    </b:commandLink>
+                                </div>
+                            </c:forEach>
                         </div>
-
-                        <c:forEach var="pageNumber" begin="1" end="#{PaymentsController.totalPages}">
-                            <b:commandLink value="#{pageNumber}"
-                                           styleClass="btn btn-primary"
-                                           ajaxDisableLinkOnRequest="true"
-                                           ajaxShowWaitingDotsOnRequest="true"
-                                           ajaxDisableRenderRegionsOnRequest="true"
-                                           action="#{PaymentsController.selectPage(pageNumber)}"
-                                           rendered="true">
-                                <f:ajax render="table"/>
-                            </b:commandLink>
-                        </c:forEach>
-
+                        </h:form>
 
                     </div>
                 </div>

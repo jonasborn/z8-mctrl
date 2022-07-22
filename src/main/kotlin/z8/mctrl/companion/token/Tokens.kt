@@ -1,7 +1,7 @@
 package z8.mctrl.companion.token
 
 import z8.mctrl.db.RDS
-import z8.mctrl.jooq.tables.Token.Companion.TOKEN
+import z8.mctrl.jooq.tables.Token.TOKEN
 import z8.mctrl.jooq.tables.daos.UserDao
 import z8.mctrl.util.IdUtils
 

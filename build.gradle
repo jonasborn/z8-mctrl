@@ -171,7 +171,7 @@ jooq {
                     password = props.get("database.password") as String
                 }
                 generator {
-                    name = "org.jooq.codegen.KotlinGenerator"
+                    name = "org.jooq.codegen.JavaGenerator"
                     database {
                         name = props.get("database.build.jooq.driver") as String
                         inputSchema = props.get("database.name") as String
