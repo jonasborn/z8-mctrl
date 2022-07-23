@@ -10,8 +10,12 @@
 >
 <h:body>
 
+    
+
     <ui:composition template="../template/terminal.xhtml">
         <ui:define name="content">
+
+            <h:panelGroup rendered="#{!RequestController.highContrast}">
 
             <div class="jumbotron mb-3">
 
@@ -26,6 +30,7 @@
                 </c:choose>
                 <p>Overview of all your payments</p>
             </div>
+            </h:panelGroup>
 
             <h:panelGroup id="clicks" layout="block">
                 <div class="card bg-secondary mb-3">
@@ -41,13 +46,13 @@
                                          model="#{PaymentController.model}"
                                          singleSelectionListener="#{PaymentController}"
                                          tableBordered="true"
-                                         tableCondensed="true"
+                                         tableCondensed="false"
                                          tableStriped="true"
                                          ajaxDisableRenderRegionsOnRequest="true"
                                          styleClass="w-100"
                                          rendered="true">
                                     <!-- at this time you have to put an ajax tag to activate some features-->
-                                    <f:ajax render="formId"/>
+                                    <f:ajax render=":formId"/>
                                     <b:column id="column1"
                                               label="Date / Time">#{DateUtils.toHumanDate(rowItem.time)} / #{DateUtils.toHumanTime(rowItem.time)}</b:column>
                                     <b:column id="column2"
@@ -71,23 +76,41 @@
 
 
                             </div>
-                        </h:form>
-                        <h:form id="buttons">
-                        <div class="d-flex justify-content-start">
-                            <c:forEach var="pageNumber" begin="1" end="#{PaymentController.totalPages}">
-                                <div class="mr-2">
-                                    <b:commandLink value="#{pageNumber}"
-                                                   styleClass="btn btn-sm #{(pageNumber == PaymentController.page) ? 'btn-outline-primary' : 'btn-primary'}"
-                                                   ajaxDisableLinkOnRequest="true"
-                                                   ajaxShowWaitingDotsOnRequest="false"
-                                                   ajaxDisableRenderRegionsOnRequest="true"
-                                                   action="#{PaymentController.changePage(pageNumber)}"
-                                                   rendered="true">
-                                        <f:ajax render="formId"/>
-                                    </b:commandLink>
-                                </div>
-                            </c:forEach>
-                        </div>
+
+
+                            <b:modalPanel id="selectionDetails"
+                                          cancelButtonText="Close"
+                                          title="Details of your payment at #{DateUtils.toHumanDate(PaymentController.selectedRow.time)} / #{DateUtils.toHumanTime(PaymentController.selectedRow.time)}">
+                                <h4>Date / Time</h4>
+                                <p>#{DateUtils.toHumanDate(PaymentController.selectedRow.time)} / #{DateUtils.toHumanTime(PaymentController.selectedRow.time)}</p>
+                                <h4>Token</h4>
+                                <p> #{PaymentController.selectedRow.token.substring(0, 4).concat("...")}</p>
+                                <h4>Device</h4>
+                                <p>#{PaymentController.selectedRow.title}</p>
+                                <h4>Details</h4>
+                                <p>#{PaymentController.selectedRow.details}</p>
+                                <h4>Amount</h4>
+                                <p>#{PaymentController.selectedRow.amount}€</p>
+                            </b:modalPanel>
+
+
+                            <div class="d-flex justify-content-start">
+                                <c:forEach var="pageNumber" begin="1" end="#{PaymentController.totalPages}">
+                                    <div class="mr-2">
+                                        <b:commandLink value="#{pageNumber}"
+                                                       styleClass="btn btn-sm #{(pageNumber == PaymentController.page) ? 'btn-outline-primary' : 'btn-primary'}"
+                                                       ajaxDisableLinkOnRequest="true"
+                                                       ajaxShowWaitingDotsOnRequest="false"
+                                                       ajaxDisableRenderRegionsOnRequest="true"
+                                                       action="#{PaymentController.changePage(pageNumber)}"
+                                                       hreflang=""
+                                                       rendered="true"
+                                        >
+                                            <f:ajax render=":formId"/>
+                                        </b:commandLink>
+                                    </div>
+                                </c:forEach>
+                            </div>
                         </h:form>
 
                     </div>

@@ -44,11 +44,13 @@ class Config() {
                 val remaining = (props[key] as String).replace(value.toRegex(), "")
                 if (remaining.isNotEmpty()) {
                     logger.error("Required key {} does not match the required regex {}", key, value)
+                    exitProcess(1)
                 } else {
                     logger.debug("Key {} was accepted, matching {}", key, value)
                 }
             } else {
                 logger.error("Required key {}, matching {} was not found in config", key, value)
+                exitProcess(1)
             }
         }
         logger.info("Config accepted")

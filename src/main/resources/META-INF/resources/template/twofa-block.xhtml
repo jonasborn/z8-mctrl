@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://java.sun.com/jstl/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:b="http://butterfaces.org/components">
+<h:panelGroup id="twofagroup" layout="block" rendered="#{TwoFAController.renderInput}">
+
+    <b:text id="twofacode"
+            label="2FA code"
+            hideLabel="false"
+            value="#{TwoFAController.input}"
+            placeholder="Your e-mail adress is used for 2fa"
+            min="1000"
+            max="9999"
+            readonly="false"
+            required="true"
+            autoFocus="true"
+    >
+        <f:ajax event="keyup" execute="input" render="output"/>
+    </b:text>
+    <div class="d-flex justify-content-start">
+        <div class="mr-2">
+            <b:commandLink value="Save"
+                           styleClass="btn btn-sm btn-primary"
+                           ajaxDisableLinkOnRequest="true"
+                           ajaxShowWaitingDotsOnRequest="false"
+                           ajaxDisableRenderRegionsOnRequest="true"
+                           action="#{TwoFAController.check()}"
+                           hreflang=""
+            >
+                <f:ajax render=":formId"/>
+            </b:commandLink>
+        </div>
+        <div class="mr-2">
+            <b:commandLink value="Resend"
+                           styleClass="btn btn-sm btn-primary"
+                           ajaxDisableLinkOnRequest="true"
+                           ajaxShowWaitingDotsOnRequest="false"
+                           ajaxDisableRenderRegionsOnRequest="true"
+                           action="#{TwoFAController.retry()}"
+                           hreflang=""
+            >
+                <f:ajax render=":formId"/>
+            </b:commandLink>
+        </div>
+        <div class="mr-2">
+            <b:commandLink value="Abort"
+                           styleClass="btn btn-sm btn-primary"
+                           ajaxDisableLinkOnRequest="true"
+                           ajaxShowWaitingDotsOnRequest="false"
+                           ajaxDisableRenderRegionsOnRequest="true"
+                           action="#{TwoFAController.abort()}"
+                           hreflang=""
+            >
+                <f:ajax render=":formId"/>
+            </b:commandLink>
+        </div>
+    </div>
+</h:panelGroup>
+</html>

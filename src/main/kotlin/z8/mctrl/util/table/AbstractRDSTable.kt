@@ -7,6 +7,7 @@ import org.butterfaces.model.table.TableModel
 import org.butterfaces.model.table.TableToolbarRefreshListener
 import org.jooq.SelectConditionStep
 import org.jooq.TableField
+import java.util.function.Consumer
 import java.util.function.Supplier
 
 abstract class AbstractRDSTable<T>(val cls: Class<T>) :
@@ -32,8 +33,14 @@ abstract class AbstractRDSTable<T>(val cls: Class<T>) :
         queryData(page, it)
     }
 
+    val selectionListeners: ArrayList<Consumer<T>> = arrayListOf()
+
     fun registerColumn(col: String, field: TableField<*, *>) {
         sortingDetails[col] = field
+    }
+
+    fun onSelect(con: Consumer<T>) {
+        this.selectionListeners.add(con)
     }
 
 
@@ -62,7 +69,14 @@ abstract class AbstractRDSTable<T>(val cls: Class<T>) :
             return
         }
         val start = pageSize * (page - 1)
-        logger.debug("Requesting page {}, start {}, limit {}, sorting by {} - {}", page, start, pageSize, si.columnUniqueIdentifier, si.sortType)
+        logger.debug(
+            "Requesting page {}, start {}, limit {}, sorting by {} - {}",
+            page,
+            start,
+            pageSize,
+            si.columnUniqueIdentifier,
+            si.sortType
+        )
 
         val keyNeeded = si.columnUniqueIdentifier
         val detailsFound = sortingDetails[keyNeeded]
@@ -98,6 +112,7 @@ abstract class AbstractRDSTable<T>(val cls: Class<T>) :
 
     override fun processTableSelection(data: T) {
         this.selectedRow = data
+        selectionListeners.forEach { it.accept(data) }
     }
 
     override fun isValueSelected(data: T): Boolean {

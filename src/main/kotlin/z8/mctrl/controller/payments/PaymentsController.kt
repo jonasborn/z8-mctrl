@@ -2,6 +2,7 @@ package z8.mctrl.controller.payments
 
 import org.jooq.impl.DSL
 import org.springframework.beans.factory.annotation.Autowired
+import z8.mctrl.controller.nav.DefaultNavController
 import z8.mctrl.db.RDS
 import z8.mctrl.jooq.Tables.EXTERNALDEVICE
 import z8.mctrl.jooq.Tables.PAYMENT
@@ -10,12 +11,13 @@ import z8.mctrl.jooq.tables.Payment
 import z8.mctrl.jooq.tables.Token
 import z8.mctrl.util.table.AbstractRDSTable
 import javax.annotation.PostConstruct
+import javax.faces.context.FacesContext
 import javax.faces.view.ViewScoped
 import javax.inject.Named
 
 @Named("PaymentController")
 @ViewScoped
-class PaymentController : AbstractRDSTable<PaymentController.BetterPaymentsControllerData>(
+class PaymentsController : AbstractRDSTable<PaymentsController.BetterPaymentsControllerData>(
     BetterPaymentsControllerData::class.java
 ) {
 
@@ -37,8 +39,19 @@ class PaymentController : AbstractRDSTable<PaymentController.BetterPaymentsContr
     @Autowired
     val rds: RDS? = null
 
+    @Autowired
+    val nv: DefaultNavController? = null
+
+
     @PostConstruct
     fun init() {
+
+        nv!!.active = DefaultNavController.Page.TERMINAL_PAYMENTS
+
+        onSelect {
+            FacesContext.getCurrentInstance().partialViewContext.evalScripts.add("butter.modal.open('selectionDetails');")
+        }
+
         registerColumn("column1", PAYMENT.TIME)
         registerColumn("column2", PAYMENT.TOKEN)
         registerColumn("column3", EXTERNALDEVICE.TITLE)

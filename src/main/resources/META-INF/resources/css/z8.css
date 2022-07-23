@@ -35,3 +35,11 @@
 .tr-editor-area {
     padding-left: 10px !important;
 }
+
+.hideme {
+    display: none !important;
+}
+
+.button {
+    cursor: pointer;
+}

@@ -5,7 +5,14 @@ $(document).on('DOMNodeInserted', function (e) {
         }
     });
     var target = document.querySelector('.tr-dropdown');
-    observer.observe(target, {
-        attributes: true
-    });
+    if (target !== undefined && target instanceof Node) {
+        observer.observe(target, {
+            attributes: true
+        });
+    }
+
 });
+
+function toggleNav() {
+    document.getElementById("navbarColor01").classList.add("hideme");
+}

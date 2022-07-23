@@ -1,5 +1,9 @@
 package z8.mctrl.controller.session
 
+import org.springframework.beans.factory.annotation.Autowired
+import z8.mctrl.db.RDS
+import z8.mctrl.jooq.tables.daos.UserDao
+import z8.mctrl.jooq.tables.pojos.UserObject
 import java.util.*
 import javax.faces.context.FacesContext
 import javax.faces.view.ViewScoped
@@ -17,6 +21,9 @@ class SessionController {
     companion object {
         const val COOKIE_NAME = "z8session"
     }
+
+    @Autowired
+    var rds: RDS? = null;
 
     private var sessionId: String? = null;
 
@@ -37,6 +44,10 @@ class SessionController {
         }
 
         return sessionId!!
+    }
+
+    fun getUser(): UserObject? {
+        return rds!!.user().fetchOneById("7139be96d7684a4cba85dd9cc1400289")
     }
 
 
