@@ -63,6 +63,10 @@ class IdUtils {
             if (check.length < 2) check = "0$check";
             return check;
         }
+
+        fun generateDefaultId(): String {
+            return UUID.randomUUID().toString().replace("-", "")
+        }
     }
 
 }

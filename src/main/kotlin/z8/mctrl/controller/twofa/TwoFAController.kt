@@ -1,6 +1,7 @@
 package z8.mctrl.controller.twofa
 
 import java.security.SecureRandom
+import java.util.function.BiConsumer
 import java.util.function.Consumer
 import javax.annotation.PostConstruct
 import javax.faces.context.FacesContext
@@ -19,7 +20,9 @@ class TwoFAController {
 
     var input: String? = null
 
-    var result: Consumer<Boolean>? = null
+    var result: BiConsumer<String?, Boolean>? = null
+
+    var message = "No reasin given"
 
     fun send(string: String) {
         println(">>>>>>>>>>>>>>>>>>>> $string")
@@ -30,6 +33,8 @@ class TwoFAController {
     var renderEverything = true
 
     var failed = false
+
+    var id: String? = null
 
     @PostConstruct
     fun generate() {
@@ -42,7 +47,9 @@ class TwoFAController {
         code = parts.joinToString("")
     }
 
-    fun request() {
+    fun request(id: String, message: String) {
+        this.id = id
+        this.message = message
         failed = false
         renderEverything = false
         renderInput = true
@@ -51,13 +58,15 @@ class TwoFAController {
     }
 
     fun check() {
-        println("CODE: $code, INPUT: $input")
-        if (code == input && result != null) {
+        Thread.sleep(2000)
+        if (code == input) {
             failed = false
-            result!!.accept(true)
+            result?.accept(id, true)
+            renderEverything = true
+            renderInput = false
         } else {
             failed = true
-            result!!.accept(false)
+            result?.accept(id, false)
         }
     }
 
@@ -70,6 +79,7 @@ class TwoFAController {
     fun retry() {
 
     }
+
 
 
 

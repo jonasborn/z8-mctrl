@@ -43,3 +43,11 @@
 .button {
     cursor: pointer;
 }
+
+.butter-component-table-column-label {
+    color: black;
+}
+
+.butter-table-row {
+    color: black;
+}

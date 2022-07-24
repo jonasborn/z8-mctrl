@@ -20,6 +20,16 @@ class DefaultNavController {
             Page.TERMINAL_CHARGE,
             Page.TERMINAL_SETTINGS
         )
+
+        val PUBLIC_PAGES = listOf(
+            Page.PUBLIC_HOME,
+            Page.PUBLIC_PAYMENTS,
+            Page.PUBLIC_DEPOSITS,
+            Page.PUBLIC_PAYOUTS,
+            Page.PUBLIC_CHARGE,
+            Page.PUBLIC_SETTINGS
+        )
+
     }
 
     enum class Page(val title: String, val url: String) {
@@ -29,11 +39,18 @@ class DefaultNavController {
         TERMINAL_DEPOSITS("Deposits", "/terminal/deposits.xhtml"),
         TERMINAL_PAYOUTS("Payouts", "/terminal/payouts.xhtml"),
         TERMINAL_CHARGE("Charge", "/terminal/charges.xhtml"),
-        TERMINAL_SETTINGS("Setting", "/terminal/settings.xhtml")
+        TERMINAL_SETTINGS("Setting", "/terminal/settings.xhtml"),
+
+        PUBLIC_HOME("Home", "/public/index.xhtml"),
+        PUBLIC_PAYMENTS("Payments", "/public/payments.xhtml"),
+        PUBLIC_DEPOSITS("Deposits", "/public/deposits.xhtml"),
+        PUBLIC_PAYOUTS("Payouts", "/public/payouts.xhtml"),
+        PUBLIC_CHARGE("Charge", "/public/charges.xhtml"),
+        PUBLIC_SETTINGS("Setting", "/public/settings.xhtml")
 
     }
 
-    var available: List<Page> = TERMINAL_PAGES
+    var available: List<Page> =  DefaultNavController.PUBLIC_PAGES
     var active: Page = Page.NONE
 
     var admin = true

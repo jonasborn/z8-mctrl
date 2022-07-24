@@ -10,44 +10,35 @@
 >
 <h:body>
 
-    
-
-    <ui:composition template="../template/terminal.xhtml">
+    <ui:composition template="../template/default.xhtml">
         <ui:define name="content">
 
-            <h:panelGroup rendered="#{!RequestController.highContrast}">
-
             <div class="jumbotron mb-3">
-
-                <c:set var="totalAmount" value="#{PaymentController.totalAmount}" scope="request"/>
+                <h1 class="display-3">Your payouts</h1>
                 <c:choose>
-                    <c:when test="#{totalAmount == 1}">
-                        <h1 class="display-3">Your payment</h1>
+                    <c:when test="#{DepositsController.totalAmount == 1}">
+                        <h2>There is currently one entry</h2>
                     </c:when>
                     <c:otherwise>
-                        <h1 class="display-3">Your #{totalAmount} payments</h1>
+                        <h2>There are currently #{DepositsController.totalAmount} entries</h2>
                     </c:otherwise>
                 </c:choose>
-                <p>Overview of all your payments</p>
             </div>
-            </h:panelGroup>
 
-            <h:panelGroup id="clicks" layout="block">
-                <div class="card bg-secondary mb-3">
-
+            <h:panelGroup id="clicks">
+                <div class="card bg-light mt-3 mb-3">
+                    <div class="card-header">Page #{DepositsController.page} of #{DepositsController.totalPages}</div>
                     <div class="card-body">
                         <h:form id="formId">
-                            <div class="card-header">Table #{PaymentController.page}</div>
                             <div class="d-flex justify-content-center">
-
                                 <b:table id="table"
                                          var="rowItem"
-                                         value="#{PaymentController.data}"
-                                         model="#{PaymentController.model}"
-                                         singleSelectionListener="#{PaymentController}"
+                                         value="#{DepositsController.data}"
+                                         model="#{DepositsController.model}"
+                                         singleSelectionListener="#{DepositsController}"
                                          tableBordered="true"
                                          tableCondensed="false"
-                                         tableStriped="true"
+                                         tableStriped="false"
                                          ajaxDisableRenderRegionsOnRequest="true"
                                          styleClass="w-100"
                                          rendered="true">
@@ -61,48 +52,50 @@
                                         #{rowItem.token.substring(0, 4).concat("...")}
                                     </b:column>
                                     <b:column id="column3"
-                                              label="Device">
+                                              label="Terminal">
                                         #{rowItem.title}
                                     </b:column>
                                     <b:column id="column4"
+                                              label="Origin">
+                                        #{rowItem.origin}
+                                    </b:column>
+                                    <b:column id="column5"
                                               label="Details">
                                         #{rowItem.details}
                                     </b:column>
-                                    <b:column id="column5"
+                                    <b:column id="column6"
                                               label="Amount">
                                         #{rowItem.amount}€
                                     </b:column>
                                 </b:table>
 
-
                             </div>
-
 
                             <b:modalPanel id="selectionDetails"
                                           cancelButtonText="Close"
-                                          title="Details of your payment at #{DateUtils.toHumanDate(PaymentController.selectedRow.time)} / #{DateUtils.toHumanTime(PaymentController.selectedRow.time)}">
+                                          title="Details of your payment at #{DateUtils.toHumanDate(DepositsController.selectedRow.time)} / #{DateUtils.toHumanTime(DepositsController.selectedRow.time)}">
                                 <h4>Date / Time</h4>
-                                <p>#{DateUtils.toHumanDate(PaymentController.selectedRow.time)} / #{DateUtils.toHumanTime(PaymentController.selectedRow.time)}</p>
+                                <p>#{DateUtils.toHumanDate(DepositsController.selectedRow.time)} / #{DateUtils.toHumanTime(DepositsController.selectedRow.time)}</p>
                                 <h4>Token</h4>
-                                <p> #{PaymentController.selectedRow.token.substring(0, 4).concat("...")}</p>
+                                <p> #{DepositsController.selectedRow.token.substring(0, 4).concat("...")}</p>
                                 <h4>Device</h4>
-                                <p>#{PaymentController.selectedRow.title}</p>
+                                <p>#{DepositsController.selectedRow.title}</p>
                                 <h4>Details</h4>
-                                <p>#{PaymentController.selectedRow.details}</p>
+                                <p>#{DepositsController.selectedRow.details}</p>
                                 <h4>Amount</h4>
-                                <p>#{PaymentController.selectedRow.amount}€</p>
+                                <p>#{DepositsController.selectedRow.amount}€</p>
                             </b:modalPanel>
 
 
                             <div class="d-flex justify-content-start">
-                                <c:forEach var="pageNumber" begin="1" end="#{PaymentController.totalPages}">
+                                <c:forEach var="pageNumber" begin="1" end="#{DepositsController.totalPages}">
                                     <div class="mr-2">
                                         <b:commandLink value="#{pageNumber}"
-                                                       styleClass="btn btn-sm #{(pageNumber == PaymentController.page) ? 'btn-outline-primary' : 'btn-primary'}"
+                                                       styleClass="btn btn-primary #{(pageNumber == DepositsController.page) ? 'active' : ''}"
                                                        ajaxDisableLinkOnRequest="true"
                                                        ajaxShowWaitingDotsOnRequest="false"
                                                        ajaxDisableRenderRegionsOnRequest="true"
-                                                       action="#{PaymentController.changePage(pageNumber)}"
+                                                       action="#{DepositsController.changePage(pageNumber)}"
                                                        hreflang=""
                                                        rendered="true"
                                         >

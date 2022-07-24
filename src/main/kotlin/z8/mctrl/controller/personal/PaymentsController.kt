@@ -1,13 +1,13 @@
-package z8.mctrl.controller.payments
+package z8.mctrl.controller.personal
 
 import org.jooq.impl.DSL
 import org.springframework.beans.factory.annotation.Autowired
 import z8.mctrl.controller.nav.DefaultNavController
+import z8.mctrl.controller.session.SessionController
 import z8.mctrl.db.RDS
-import z8.mctrl.jooq.Tables.EXTERNALDEVICE
-import z8.mctrl.jooq.Tables.PAYMENT
-import z8.mctrl.jooq.tables.Externaldevice
-import z8.mctrl.jooq.tables.Payment
+
+import z8.mctrl.jooq.tables.Externaldevice.EXTERNALDEVICE
+import z8.mctrl.jooq.tables.Payment.PAYMENT
 import z8.mctrl.jooq.tables.Token
 import z8.mctrl.util.table.AbstractRDSTable
 import javax.annotation.PostConstruct
@@ -42,11 +42,14 @@ class PaymentsController : AbstractRDSTable<PaymentsController.BetterPaymentsCon
     @Autowired
     val nv: DefaultNavController? = null
 
+    @Autowired
+    val sc: SessionController? = null
+
 
     @PostConstruct
     fun init() {
-
-        nv!!.active = DefaultNavController.Page.TERMINAL_PAYMENTS
+        nv!!.available = DefaultNavController.PUBLIC_PAGES
+        nv.active = DefaultNavController.Page.PUBLIC_PAYMENTS
 
         onSelect {
             FacesContext.getCurrentInstance().partialViewContext.evalScripts.add("butter.modal.open('selectionDetails');")
@@ -61,10 +64,10 @@ class PaymentsController : AbstractRDSTable<PaymentsController.BetterPaymentsCon
             super.initialize(
                 {
                     rds.dsl().fetchCount(
-                        DSL.selectFrom(Payment.PAYMENT).where(
-                            Payment.PAYMENT.TOKEN.`in`(
+                        DSL.selectFrom(PAYMENT).where(
+                            PAYMENT.TOKEN.`in`(
                                 DSL.select(Token.TOKEN.ID).from(Token.TOKEN)
-                                    .where(Token.TOKEN.USER.eq("7139be96d7684a4cba85dd9cc1400289"))
+                                    .where(Token.TOKEN.USER.eq(sc!!.getUser()!!.id))
                             )
                         )
                     )
@@ -72,16 +75,21 @@ class PaymentsController : AbstractRDSTable<PaymentsController.BetterPaymentsCon
                 {
                     rds.dsl()
                         .select(
-                            Payment.PAYMENT.ID,
-                            Payment.PAYMENT.TIME,
-                            Payment.PAYMENT.TOKEN,
-                            Payment.PAYMENT.AMOUNT,
-                            Payment.PAYMENT.DETAILS,
-                            Externaldevice.EXTERNALDEVICE.TITLE,
-                        ).from(Payment.PAYMENT)
-                        .innerJoin(Externaldevice.EXTERNALDEVICE)
-                        .on(Payment.PAYMENT.EXTERNAL.eq(Externaldevice.EXTERNALDEVICE.ID))
-                        .where(Payment.PAYMENT.EXTERNAL.eq(Externaldevice.EXTERNALDEVICE.ID))
+                            PAYMENT.ID,
+                            PAYMENT.TIME,
+                            PAYMENT.TOKEN,
+                            PAYMENT.AMOUNT,
+                            PAYMENT.DETAILS,
+                            EXTERNALDEVICE.TITLE,
+                        ).from(PAYMENT)
+                        .innerJoin(EXTERNALDEVICE)
+                        .on(PAYMENT.EXTERNAL.eq(EXTERNALDEVICE.ID))
+                        .where(
+                            PAYMENT.TOKEN.`in`(
+                                DSL.select(Token.TOKEN.ID).from(Token.TOKEN)
+                                    .where(Token.TOKEN.USER.eq(sc!!.getUser()!!.id))
+                            )
+                        )
                 }
 
             )

@@ -177,10 +177,24 @@ jooq {
                         inputSchema = props.get("database.name") as String
                         forcedTypes {
                             forcedType {
-                                // Specify the Java type of your custom type. This corresponds to the Converter's <U> type.
                                 userType = 'z8.mctrl.db.forced.PaymentRequestStatus'
                                 enumConverter = true
                                 includeExpression = 'PAYMENTREQUEST\\.STATUS'
+                            }
+                            forcedType {
+                                userType = 'z8.mctrl.db.forced.PaymentProvider'
+                                enumConverter = true
+                                includeExpression = 'PAYOUT\\.TARGET'
+                            }
+                            forcedType {
+                                userType = 'z8.mctrl.db.forced.PaymentProvider'
+                                enumConverter = true
+                                includeExpression = 'DEPOSIT\\.ORIGIN'
+                            }
+                            forcedType {
+                                userType = 'z8.mctrl.db.forced.TokenAction'
+                                enumConverter = true
+                                includeExpression = 'TOKENACTION\\.ACTION'
                             }
                         }
                     }

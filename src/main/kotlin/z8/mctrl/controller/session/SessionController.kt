@@ -47,7 +47,7 @@ class SessionController {
     }
 
     fun getUser(): UserObject? {
-        return rds!!.user().fetchOneById("7139be96d7684a4cba85dd9cc1400289")
+        return rds!!.user().fetchOneById("aaba66673f504a8ea1c81e40fb5549f7")
     }
 
 

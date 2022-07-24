@@ -143,5 +143,9 @@ class RDS(val config: Config) {
         return UserDao(dao())
     }
 
+    fun serverDevice(): ServerDeviceDao {
+        return ServerDeviceDao(dao())
+    }
+
 
 }

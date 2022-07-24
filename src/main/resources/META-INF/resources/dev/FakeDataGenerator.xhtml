@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:b="http://butterfaces.org/components"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+>
+<h:body>
+
+    <ui:composition template="../template/default.xhtml">
+        <ui:define name="content">
+            <b:commandLink value="Generate fake data"
+                           styleClass="btn btn-sm btn-outline-primary"
+                           ajaxDisableLinkOnRequest="true"
+                           ajaxShowWaitingDotsOnRequest="false"
+                           ajaxDisableRenderRegionsOnRequest="true"
+                           action="#{FakeDataController.generate}"
+                           hreflang=""
+                           rendered="true">
+                <f:ajax render=":formId"/>
+            </b:commandLink>
+        </ui:define>
+    </ui:composition>
+
+</h:body>
+
+</html>

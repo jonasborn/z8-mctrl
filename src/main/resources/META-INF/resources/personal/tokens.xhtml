@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!--suppress ELValidationInJSP --> <!--SOFTODO Find better solution -->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:b="http://butterfaces.org/components"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+>
+<h:body>
+
+    <ui:composition template="../template/default.xhtml">
+        <ui:define name="content">
+
+            <div class="jumbotron mb-3">
+                <h1 class="display-3">Your payouts</h1>
+                <c:choose>
+                    <c:when test="#{TokensController.totalAmount == 1}">
+                        <h2>There is currently one entry</h2>
+                    </c:when>
+                    <c:otherwise>
+                        <h2>There are currently #{TokensController.totalAmount} entries</h2>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+
+            <h:panelGroup id="clicks">
+                <div class="card bg-light mt-3 mb-3">
+                    <div class="card-header">Page #{TokensController.page} of #{TokensController.totalPages}</div>
+                    <div class="card-body">
+                        <h:form id="formId">
+                            <div class="d-flex justify-content-center">
+                                <b:table id="table"
+                                         var="rowItem"
+                                         value="#{TokensController.data}"
+                                         model="#{TokensController.model}"
+                                         singleSelectionListener="#{TokensController}"
+                                         tableBordered="true"
+                                         tableCondensed="false"
+                                         tableStriped="false"
+                                         ajaxDisableRenderRegionsOnRequest="true"
+                                         styleClass="w-100"
+                                         rendered="true">
+                                    <!-- at this time you have to put an ajax tag to activate some features-->
+                                    <f:ajax render=":formId"/>
+                                    <b:column id="column1"
+                                              label="Register Date / Time">#{DateUtils.toHumanDate(rowItem.time)} / #{DateUtils.toHumanTime(rowItem.time)}</b:column>
+                                    <b:column id="column2"
+                                              sortColumnEnabled="false"
+                                              label="Token">
+                                        #{rowItem.id.substring(0, 4).concat("...")}
+                                    </b:column>
+                                    <b:column id="column3"
+                                              sortColumnEnabled="false"
+                                              label="Condition">
+
+                                        <f:importConstants type="z8.mctrl.db.forced.TokenAction" />
+                                         <b:commandLink value="#{rowItem.action.printable}"
+                                                       styleClass="btn btn-sm btn-primary"
+                                                       ajaxDisableLinkOnRequest="true"
+                                                       ajaxShowWaitingDotsOnRequest="false"
+                                                       ajaxDisableRenderRegionsOnRequest="true"
+                                                       action="#{TwoFAController.request(
+                                                           rowItem.id,
+                                                           'Request to change state of '.concat(' ').concat(rowItem.id.substring(0, 4)).concat('...')
+                                                       )}"
+                                                       disabled="#{(rowItem.action != 'DEACTIVATED' and rowItem.action != 'ACTIVATED')}"
+                                                       hreflang=""
+                                        >
+                                            <f:ajax render=":formId"/>
+                                        </b:commandLink>
+                                    </b:column>
+                                </b:table>
+
+                            </div>
+                            <ui:include src="../template/twofa-block.xhtml"/>
+
+                        </h:form>
+
+
+                        <b:modalPanel id="selectionDetails"
+                                      cancelButtonText="Close"
+                                      title="Details of your payment at #{DateUtils.toHumanDate(TokensController.selectedRow.time)} / #{DateUtils.toHumanTime(TokensController.selectedRow.time)}">
+                            <h4>Date / Time</h4>
+                            <p>#{DateUtils.toHumanDate(TokensController.selectedRow.time)} / #{DateUtils.toHumanTime(TokensController.selectedRow.time)}</p>
+                            <h4>Token</h4>
+                            #{TokensController.selectedRow.id.substring(0, 4).concat("...")}
+                        </b:modalPanel>
+
+
+                    </div>
+                </div>
+            </h:panelGroup>
+        </ui:define>
+    </ui:composition>
+
+</h:body>
+
+</html>

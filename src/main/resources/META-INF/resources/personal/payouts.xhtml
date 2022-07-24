@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:b="http://butterfaces.org/components"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+>
+<h:body>
+
+    <ui:composition template="../template/default.xhtml">
+        <ui:define name="content">
+
+            <div class="jumbotron mb-3">
+                <h1 class="display-3">Your payouts</h1>
+                <c:choose>
+                    <c:when test="#{PayoutsController.totalAmount == 1}">
+                        <h2>There is currently one entry</h2>
+                    </c:when>
+                    <c:otherwise>
+                        <h2>There are currently #{PayoutsController.totalAmount} entries</h2>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+
+            <h:panelGroup id="clicks">
+                <div class="card bg-light mt-3 mb-3">
+                    <div class="card-header">Page #{PayoutsController.page} of #{PayoutsController.totalPages}</div>
+                    <div class="card-body">
+                        <h:form id="formId">
+                            <div class="d-flex justify-content-center">
+                                <b:table id="table"
+                                         var="rowItem"
+                                         value="#{PayoutsController.data}"
+                                         model="#{PayoutsController.model}"
+                                         singleSelectionListener="#{PayoutsController}"
+                                         tableBordered="true"
+                                         tableCondensed="false"
+                                         tableStriped="false"
+                                         ajaxDisableRenderRegionsOnRequest="true"
+                                         styleClass="w-100"
+                                         rendered="true">
+                                    <!-- at this time you have to put an ajax tag to activate some features-->
+                                    <f:ajax render=":formId"/>
+                                    <b:column id="column1"
+                                              label="Date / Time">#{DateUtils.toHumanDate(rowItem.time)} / #{DateUtils.toHumanTime(rowItem.time)}</b:column>
+                                    <b:column id="column2"
+                                              sortColumnEnabled="false"
+                                              label="Token">
+                                        #{rowItem.token.substring(0, 4).concat("...")}
+                                    </b:column>
+                                    <b:column id="column3"
+                                              label="Terminal">
+                                        #{rowItem.title}
+                                    </b:column>
+                                    <b:column id="column4"
+                                              label="Target">
+                                        #{rowItem.target}
+                                    </b:column>
+                                    <b:column id="column5"
+                                              label="Details">
+                                        #{rowItem.details}
+                                    </b:column>
+                                    <b:column id="column6"
+                                              label="Amount">
+                                        #{rowItem.amount}€
+                                    </b:column>
+                                </b:table>
+
+                            </div>
+
+                            <b:modalPanel id="selectionDetails"
+                                          cancelButtonText="Close"
+                                          title="Details of your payment at #{DateUtils.toHumanDate(PayoutsController.selectedRow.time)} / #{DateUtils.toHumanTime(PayoutsController.selectedRow.time)}">
+                                <h4>Date / Time</h4>
+                                <p>#{DateUtils.toHumanDate(PayoutsController.selectedRow.time)} / #{DateUtils.toHumanTime(PayoutsController.selectedRow.time)}</p>
+                                <h4>Token</h4>
+                                <p> #{PayoutsController.selectedRow.token.substring(0, 4).concat("...")}</p>
+                                <h4>Terminal</h4>
+                                <p>#{PayoutsController.selectedRow.title}</p>
+                                <h4>Terminal</h4>
+                                <p>#{PayoutsController.selectedRow.target}</p>
+                                <h4>Details</h4>
+                                <p>#{PayoutsController.selectedRow.details}</p>
+                                <h4>Amount</h4>
+                                <p>#{PayoutsController.selectedRow.amount}€</p>
+                            </b:modalPanel>
+
+
+                            <div class="d-flex justify-content-start">
+                                <c:forEach var="pageNumber" begin="1" end="#{PayoutsController.totalPages}">
+                                    <div class="mr-2">
+                                        <b:commandLink value="#{pageNumber}"
+                                                       styleClass="btn btn-primary #{(pageNumber == PayoutsController.page) ? 'active' : ''}"
+                                                       ajaxDisableLinkOnRequest="true"
+                                                       ajaxShowWaitingDotsOnRequest="false"
+                                                       ajaxDisableRenderRegionsOnRequest="true"
+                                                       action="#{PayoutsController.changePage(pageNumber)}"
+                                                       hreflang=""
+                                                       rendered="true"
+                                        >
+                                            <f:ajax render=":formId"/>
+                                        </b:commandLink>
+                                    </div>
+                                </c:forEach>
+                            </div>
+                        </h:form>
+
+                    </div>
+                </div>
+            </h:panelGroup>
+        </ui:define>
+    </ui:composition>
+
+</h:body>
+
+</html>

@@ -20,7 +20,7 @@ abstract class AbstractRDSTable<T>(val cls: Class<T>) :
     var selectQuery: Supplier<SelectConditionStep<*>>? = null
 
     var page = 1
-    val pageSize = 1
+    val pageSize = 10
     var totalAmount = 0
     var totalPages = 0
 

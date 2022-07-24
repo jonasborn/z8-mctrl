@@ -15,8 +15,8 @@ docker ps
 docker stop z8_dev_redis
 docker rm z8_dev_redis
 
-docker stop z8_dev_mysql
-docker rm z8_dev_mysql
+docker stop z8_dev_mariadb
+docker rm z8_dev_mariadb
 
 docker stop z8_dev_phpmy
 docker rm z8_dev_phpmy

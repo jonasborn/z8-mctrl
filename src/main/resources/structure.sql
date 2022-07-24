@@ -3,19 +3,13 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: db
--- Erstellungszeit: 20. Jul 2022 um 23:02
--- Server-Version: 8.0.1-dmr
+-- Erstellungszeit: 24. Jul 2022 um 20:54
+-- Server-Version: 10.8.3-MariaDB-1:10.8.3+maria~jammy
 -- PHP-Version: 8.0.19
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
-
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
 
 --
 -- Datenbank: `z8`
@@ -30,7 +24,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `Deposit` (
                            `id` bigint(20) NOT NULL,
                            `time` bigint(20) NOT NULL,
-                           `device` varchar(32) NOT NULL,
+                           `terminal` varchar(32) NOT NULL,
                            `token` varchar(32) NOT NULL,
                            `amount` float NOT NULL,
                            `origin` int(11) NOT NULL,
@@ -40,27 +34,16 @@ CREATE TABLE `Deposit` (
 -- --------------------------------------------------------
 
 --
--- Tabellenstruktur für Tabelle `Device`
---
-
-CREATE TABLE `Device` (
-                          `id` varchar(32) NOT NULL,
-                          `time` bigint(20) NOT NULL,
-                          `secret` varchar(40) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
 -- Tabellenstruktur für Tabelle `ExternalDevice`
 --
 
 CREATE TABLE `ExternalDevice` (
-                                  `id` varchar(32) CHARACTER SET utf8mb4 NOT NULL,
+                                  `id` varchar(32) NOT NULL,
                                   `time` bigint(20) NOT NULL,
-                                  `target` varchar(40) CHARACTER SET utf8mb4 NOT NULL,
-                                  `secret` varchar(40) CHARACTER SET utf8mb4 NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+                                  `target` varchar(40) NOT NULL,
+                                  `secret` varchar(40) NOT NULL,
+                                  `title` varchar(40) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -69,10 +52,10 @@ CREATE TABLE `ExternalDevice` (
 --
 
 CREATE TABLE `InternalDevice` (
-                                  `id` varchar(32) CHARACTER SET utf8mb4 NOT NULL,
+                                  `id` varchar(32) NOT NULL,
                                   `time` bigint(20) NOT NULL,
-                                  `secret` varchar(40) CHARACTER SET utf8mb4 NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+                                  `secret` varchar(40) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -83,10 +66,10 @@ CREATE TABLE `InternalDevice` (
 CREATE TABLE `Payment` (
                            `id` bigint(20) NOT NULL,
                            `time` bigint(20) NOT NULL,
-                           `internal` varchar(32) NOT NULL,
                            `external` varchar(32) NOT NULL,
                            `token` varchar(32) NOT NULL,
-                           `amount` float NOT NULL
+                           `amount` float NOT NULL,
+                           `details` varchar(40) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -96,13 +79,13 @@ CREATE TABLE `Payment` (
 --
 
 CREATE TABLE `PaymentRequest` (
-                                  `id` varchar(32) CHARACTER SET utf8mb4 NOT NULL,
+                                  `id` varchar(32) NOT NULL,
                                   `time` bigint(20) NOT NULL,
-                                  `source` varchar(32) CHARACTER SET utf8mb4 NOT NULL,
-                                  `target` varchar(32) CHARACTER SET utf8mb4 NOT NULL,
+                                  `external` varchar(32) NOT NULL,
+                                  `internal` varchar(32) NOT NULL,
                                   `amount` float NOT NULL,
                                   `status` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -113,11 +96,37 @@ CREATE TABLE `PaymentRequest` (
 CREATE TABLE `Payout` (
                           `id` bigint(20) NOT NULL,
                           `time` bigint(20) NOT NULL,
-                          `device` varchar(32) NOT NULL,
+                          `terminal` varchar(32) NOT NULL,
                           `token` varchar(32) NOT NULL,
                           `amount` float NOT NULL,
                           `target` int(11) NOT NULL COMMENT 'Target platform, could be cash, service, ...',
                           `details` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `ServerDevice`
+--
+
+CREATE TABLE `ServerDevice` (
+                                `id` varchar(40) NOT NULL,
+                                `time` bigint(20) NOT NULL,
+                                `host` varchar(40) NOT NULL,
+                                `type` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `TerminalDevice`
+--
+
+CREATE TABLE `TerminalDevice` (
+                                  `id` varchar(32) NOT NULL,
+                                  `time` bigint(20) NOT NULL,
+                                  `secret` varchar(40) NOT NULL,
+                                  `title` varchar(40) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -129,7 +138,7 @@ CREATE TABLE `Payout` (
 CREATE TABLE `Token` (
                          `id` varchar(32) NOT NULL,
                          `time` bigint(20) NOT NULL,
-                         `device` varchar(32) NOT NULL,
+                         `terminal` varchar(32) NOT NULL,
                          `user` varchar(32) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -140,10 +149,10 @@ CREATE TABLE `Token` (
 --
 
 CREATE TABLE `TokenAction` (
-                               `id` int(11) NOT NULL,
+                               `id` bigint(20) NOT NULL,
                                `time` bigint(20) NOT NULL,
                                `token` varchar(32) NOT NULL,
-                               `device` varchar(32) NOT NULL,
+                               `server` varchar(32) NOT NULL,
                                `user` varchar(32) NOT NULL,
                                `action` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -157,7 +166,7 @@ CREATE TABLE `TokenAction` (
 CREATE TABLE `User` (
                         `id` varchar(32) NOT NULL,
                         `time` bigint(20) NOT NULL,
-                        `device` varchar(32) NOT NULL,
+                        `terminal` varchar(32) NOT NULL,
                         `mail` varchar(40) NOT NULL,
                         `recovery` varchar(40) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -171,7 +180,7 @@ CREATE TABLE `User` (
 CREATE TABLE `UserActions` (
                                `id` int(11) NOT NULL,
                                `time` bigint(20) NOT NULL,
-                               `device` varchar(32) NOT NULL,
+                               `terminal` varchar(32) NOT NULL,
                                `user` varchar(32) NOT NULL,
                                `issuer` varchar(32) NOT NULL,
                                `target` int(11) NOT NULL
@@ -186,14 +195,8 @@ CREATE TABLE `UserActions` (
 --
 ALTER TABLE `Deposit`
     ADD PRIMARY KEY (`id`),
-    ADD KEY `fk_Deposit_device__id` (`device`),
+    ADD KEY `fk_Deposit_device__id` (`terminal`),
     ADD KEY `fk_Deposit_token__id` (`token`);
-
---
--- Indizes für die Tabelle `Device`
---
-ALTER TABLE `Device`
-    ADD PRIMARY KEY (`id`);
 
 --
 -- Indizes für die Tabelle `ExternalDevice`
@@ -213,7 +216,6 @@ ALTER TABLE `InternalDevice`
 --
 ALTER TABLE `Payment`
     ADD PRIMARY KEY (`id`),
-    ADD KEY `fk_Payment_device__id` (`internal`),
     ADD KEY `fk_Payment_token__id` (`token`),
     ADD KEY `fk_Payment_external__id` (`external`);
 
@@ -222,23 +224,35 @@ ALTER TABLE `Payment`
 --
 ALTER TABLE `PaymentRequest`
     ADD PRIMARY KEY (`id`),
-    ADD KEY `fk_PaymentRequest_source__id` (`source`),
-    ADD KEY `fk_PaymentRequest_target__id` (`target`);
+    ADD KEY `fk_PaymentRequest_source__id` (`external`),
+    ADD KEY `fk_PaymentRequest_target__id` (`internal`);
 
 --
 -- Indizes für die Tabelle `Payout`
 --
 ALTER TABLE `Payout`
     ADD PRIMARY KEY (`id`),
-    ADD KEY `fk_Payout_device__id` (`device`),
+    ADD KEY `fk_Payout_device__id` (`terminal`),
     ADD KEY `fk_Payout_token__id` (`token`);
+
+--
+-- Indizes für die Tabelle `ServerDevice`
+--
+ALTER TABLE `ServerDevice`
+    ADD PRIMARY KEY (`id`);
+
+--
+-- Indizes für die Tabelle `TerminalDevice`
+--
+ALTER TABLE `TerminalDevice`
+    ADD PRIMARY KEY (`id`);
 
 --
 -- Indizes für die Tabelle `Token`
 --
 ALTER TABLE `Token`
     ADD PRIMARY KEY (`id`),
-    ADD KEY `fk_Token_device__id` (`device`),
+    ADD KEY `fk_Token_device__id` (`terminal`),
     ADD KEY `fk_Token_user__id` (`user`);
 
 --
@@ -247,7 +261,7 @@ ALTER TABLE `Token`
 ALTER TABLE `TokenAction`
     ADD PRIMARY KEY (`id`),
     ADD KEY `fk_TokenAction_token__id` (`token`),
-    ADD KEY `fk_TokenAction_device__id` (`device`),
+    ADD KEY `fk_TokenAction_device__id` (`server`),
     ADD KEY `fk_TokenAction_user__id` (`user`);
 
 --
@@ -255,14 +269,14 @@ ALTER TABLE `TokenAction`
 --
 ALTER TABLE `User`
     ADD PRIMARY KEY (`id`),
-    ADD KEY `fk_User_device__id` (`device`);
+    ADD KEY `fk_User_device__id` (`terminal`);
 
 --
 -- Indizes für die Tabelle `UserActions`
 --
 ALTER TABLE `UserActions`
     ADD PRIMARY KEY (`id`),
-    ADD KEY `fk_UserActions_device__id` (`device`),
+    ADD KEY `fk_UserActions_device__id` (`terminal`),
     ADD KEY `fk_UserActions_user__id` (`user`),
     ADD KEY `fk_UserActions_issuer__id` (`issuer`);
 
@@ -292,7 +306,7 @@ ALTER TABLE `Payout`
 -- AUTO_INCREMENT für Tabelle `TokenAction`
 --
 ALTER TABLE `TokenAction`
-    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+    MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT für Tabelle `UserActions`
@@ -308,7 +322,7 @@ ALTER TABLE `UserActions`
 -- Constraints der Tabelle `Deposit`
 --
 ALTER TABLE `Deposit`
-    ADD CONSTRAINT `fk_Deposit_device__id` FOREIGN KEY (`device`) REFERENCES `Device` (`id`),
+    ADD CONSTRAINT `fk_Deposit_terminal__id` FOREIGN KEY (`terminal`) REFERENCES `TerminalDevice` (`id`),
     ADD CONSTRAINT `fk_Deposit_token__id` FOREIGN KEY (`token`) REFERENCES `Token` (`id`);
 
 --
@@ -322,35 +336,34 @@ ALTER TABLE `ExternalDevice`
 --
 ALTER TABLE `Payment`
     ADD CONSTRAINT `fk_Payment_external__id` FOREIGN KEY (`external`) REFERENCES `ExternalDevice` (`id`),
-    ADD CONSTRAINT `fk_Payment_internal__id` FOREIGN KEY (`internal`) REFERENCES `InternalDevice` (`id`),
     ADD CONSTRAINT `fk_Payment_token__id` FOREIGN KEY (`token`) REFERENCES `Token` (`id`);
 
 --
 -- Constraints der Tabelle `PaymentRequest`
 --
 ALTER TABLE `PaymentRequest`
-    ADD CONSTRAINT `fk_PaymentRequest_source__id` FOREIGN KEY (`source`) REFERENCES `ExternalDevice` (`id`),
-    ADD CONSTRAINT `fk_PaymentRequest_target__id` FOREIGN KEY (`target`) REFERENCES `InternalDevice` (`id`);
+    ADD CONSTRAINT `fk_PaymentRequest_external__id` FOREIGN KEY (`external`) REFERENCES `ExternalDevice` (`id`),
+    ADD CONSTRAINT `fk_PaymentRequest_internal__id` FOREIGN KEY (`internal`) REFERENCES `InternalDevice` (`id`);
 
 --
 -- Constraints der Tabelle `Payout`
 --
 ALTER TABLE `Payout`
-    ADD CONSTRAINT `fk_Payout_device__id` FOREIGN KEY (`device`) REFERENCES `Device` (`id`),
+    ADD CONSTRAINT `fk_Payout_terminal__id` FOREIGN KEY (`terminal`) REFERENCES `TerminalDevice` (`id`),
     ADD CONSTRAINT `fk_Payout_token__id` FOREIGN KEY (`token`) REFERENCES `Token` (`id`);
 
 --
 -- Constraints der Tabelle `Token`
 --
 ALTER TABLE `Token`
-    ADD CONSTRAINT `fk_Token_device__id` FOREIGN KEY (`device`) REFERENCES `Device` (`id`),
+    ADD CONSTRAINT `fk_Token_terminal__id` FOREIGN KEY (`terminal`) REFERENCES `TerminalDevice` (`id`),
     ADD CONSTRAINT `fk_Token_user__id` FOREIGN KEY (`user`) REFERENCES `User` (`id`);
 
 --
 -- Constraints der Tabelle `TokenAction`
 --
 ALTER TABLE `TokenAction`
-    ADD CONSTRAINT `fk_TokenAction_device__id` FOREIGN KEY (`device`) REFERENCES `Device` (`id`),
+    ADD CONSTRAINT `fk_TokenAction_server__id` FOREIGN KEY (`server`) REFERENCES `ServerDevice` (`id`),
     ADD CONSTRAINT `fk_TokenAction_token__id` FOREIGN KEY (`token`) REFERENCES `Token` (`id`),
     ADD CONSTRAINT `fk_TokenAction_user__id` FOREIGN KEY (`user`) REFERENCES `User` (`id`);
 
@@ -358,17 +371,13 @@ ALTER TABLE `TokenAction`
 -- Constraints der Tabelle `User`
 --
 ALTER TABLE `User`
-    ADD CONSTRAINT `fk_User_device__id` FOREIGN KEY (`device`) REFERENCES `Device` (`id`);
+    ADD CONSTRAINT `fk_User_terminal__id` FOREIGN KEY (`terminal`) REFERENCES `TerminalDevice` (`id`);
 
 --
 -- Constraints der Tabelle `UserActions`
 --
 ALTER TABLE `UserActions`
-    ADD CONSTRAINT `fk_UserActions_device__id` FOREIGN KEY (`device`) REFERENCES `Device` (`id`),
     ADD CONSTRAINT `fk_UserActions_issuer__id` FOREIGN KEY (`issuer`) REFERENCES `User` (`id`),
+    ADD CONSTRAINT `fk_UserActions_terminal__id` FOREIGN KEY (`terminal`) REFERENCES `TerminalDevice` (`id`),
     ADD CONSTRAINT `fk_UserActions_user__id` FOREIGN KEY (`user`) REFERENCES `User` (`id`);
 COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

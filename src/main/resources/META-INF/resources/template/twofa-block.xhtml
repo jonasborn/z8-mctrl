@@ -6,58 +6,75 @@
       xmlns:c="http://java.sun.com/jstl/core"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:b="http://butterfaces.org/components">
-<h:panelGroup id="twofagroup" layout="block" rendered="#{TwoFAController.renderInput}">
 
-    <b:text id="twofacode"
-            label="2FA code"
-            hideLabel="false"
-            value="#{TwoFAController.input}"
-            placeholder="Your e-mail adress is used for 2fa"
-            min="1000"
-            max="9999"
-            readonly="false"
-            required="true"
-            autoFocus="true"
-    >
-        <f:ajax event="keyup" execute="input" render="output"/>
-    </b:text>
-    <div class="d-flex justify-content-start">
-        <div class="mr-2">
-            <b:commandLink value="Save"
-                           styleClass="btn btn-sm btn-primary"
-                           ajaxDisableLinkOnRequest="true"
-                           ajaxShowWaitingDotsOnRequest="false"
-                           ajaxDisableRenderRegionsOnRequest="true"
-                           action="#{TwoFAController.check()}"
-                           hreflang=""
-            >
-                <f:ajax render=":formId"/>
-            </b:commandLink>
+<h:panelGroup id="twofagroupouter" layout="block" >
+    <h:panelGroup id="twofagroup" layout="block" rendered="#{TwoFAController.renderInput}">
+
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-header">Two factor verification</div>
+            <div class="card-body">
+                <h:panelGroup id="twofaerror" layout="block" rendered="#{TwoFAController.failed}">
+                <div class="alert alert-danger">
+                    <strong>Oh snap!</strong> The entered code was not corret!
+                </div>
+                </h:panelGroup>
+                <h4 class="card-title">#{TwoFAController.message}</h4>
+                <p>Email sent! Have a look in your inbox and write the digits you've received down here</p>
+                <b:text id="twofacode"
+                        label="2FA code"
+                        hideLabel="false"
+                        value="#{TwoFAController.input}"
+                        placeholder="The number you've received via email"
+                        min="1000"
+                        max="9999"
+                        readonly="false"
+                        required="true"
+                        autoFocus="true"
+                >
+                    <f:ajax event="keyup" execute="input" render="output"/>
+                </b:text>
+            </div>
+            <div class="d-flex justify-content-start m-3">
+                <div class="mr-2">
+                    <b:commandLink value="Save"
+                                   styleClass="btn btn-sm btn-secondary"
+                                   ajaxDisableLinkOnRequest="true"
+                                   ajaxShowWaitingDotsOnRequest="false"
+                                   ajaxDisableRenderRegionsOnRequest="true"
+                                   action="#{TwoFAController.check()}"
+                                   hreflang=""
+                    >
+                        <f:ajax render="@all"/>
+                    </b:commandLink>
+                </div>
+                <div class="mr-2">
+                    <b:commandLink value="Resend"
+                                   styleClass="btn btn-sm btn-secondary"
+                                   ajaxDisableLinkOnRequest="true"
+                                   ajaxShowWaitingDotsOnRequest="false"
+                                   ajaxDisableRenderRegionsOnRequest="true"
+                                   action="#{TwoFAController.retry()}"
+                                   hreflang=""
+                    >
+                        <f:ajax render="twofagroupouter"/>
+                    </b:commandLink>
+                </div>
+                <div class="mr-2">
+                    <b:commandLink value="Abort"
+                                   styleClass="btn btn-sm btn-secondary"
+                                   ajaxDisableLinkOnRequest="true"
+                                   ajaxShowWaitingDotsOnRequest="false"
+                                   ajaxDisableRenderRegionsOnRequest="true"
+                                   action="#{TwoFAController.abort()}"
+                                   hreflang=""
+                    >
+                        <f:ajax render="twofagroupouter"/>
+                    </b:commandLink>
+                </div>
+            </div>
         </div>
-        <div class="mr-2">
-            <b:commandLink value="Resend"
-                           styleClass="btn btn-sm btn-primary"
-                           ajaxDisableLinkOnRequest="true"
-                           ajaxShowWaitingDotsOnRequest="false"
-                           ajaxDisableRenderRegionsOnRequest="true"
-                           action="#{TwoFAController.retry()}"
-                           hreflang=""
-            >
-                <f:ajax render=":formId"/>
-            </b:commandLink>
-        </div>
-        <div class="mr-2">
-            <b:commandLink value="Abort"
-                           styleClass="btn btn-sm btn-primary"
-                           ajaxDisableLinkOnRequest="true"
-                           ajaxShowWaitingDotsOnRequest="false"
-                           ajaxDisableRenderRegionsOnRequest="true"
-                           action="#{TwoFAController.abort()}"
-                           hreflang=""
-            >
-                <f:ajax render=":formId"/>
-            </b:commandLink>
-        </div>
-    </div>
+    </h:panelGroup>
 </h:panelGroup>
+
+
 </html>

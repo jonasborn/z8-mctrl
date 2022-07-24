@@ -7,8 +7,7 @@
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:b="http://butterfaces.org/components">
 <h:head>
-    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=2.0"/>
     <style>
         footer {
             position: fixed;
@@ -18,58 +17,46 @@
         }
     </style>
 </h:head>
-<body class="#{(RequestController.isHighContrast()  ? '' : 'm-5')}">
+<body>
 
-<c:choose>
-    <c:when test="#{RequestController.isHighContrast()}">
-        <h:outputStylesheet library="css" name="themedark.css"/>
-    </c:when>
-    <c:otherwise>
-        <h:outputStylesheet library="css" name="theme.css"/>
-    </c:otherwise>
-</c:choose>
+<h:outputStylesheet library="css" name="z8.css"/>
 
-<c:if test="#{RequestController.highContrast eq false}">
-    <h:outputStylesheet library="css" name="theme.css"/>
-</c:if>
-
-<c:if test="#{RequestController.highContrast eq true}">
-    <h:outputStylesheet library="css" name="theme-dark.css"/>
-</c:if>
+<h:outputStylesheet library="css" name="themeterminal.css"/>
 
 <h:form id="navbar-form">
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-        <a class="navbar-brand" href="#">zeroeight</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01"
-                aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+    <div class="bs-component">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">Navbar</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02"
+                    aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-        <div class="collapse navbar-collapse" id="navbarColor01">
-            <ul class="navbar-nav mr-auto">
+            <div class="collapse navbar-collapse" id="navbarColor02">
+                <ul class="navbar-nav mr-auto">
+                    <c:forEach items="#{DefaultNavController.available}" var="item">
+                        <c:choose>
+                            <c:when test="#{DefaultNavController.active == item}">
+                                <li class="nav-item active">
+                                    <a class="nav-link" href="#{item.url}">#{item.title}
+                                        <span class="sr-only">(current)</span>
+                                    </a>
+                                </li>
+                            </c:when>
+                            <c:otherwise>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#{item.url}">#{item.title}</a>
+                                </li>
+                            </c:otherwise>
+                        </c:choose>
+                    </c:forEach>
+                </ul>
 
-                <c:forEach items="#{DefaultNavController.available}" var="item">
-                    <c:choose>
-                        <c:when test="#{DefaultNavController.active == item}">
-                            <li class="nav-item active">
-                                <a class="nav-link" href="#{item.url}">#{item.title}
-                                    <span class="sr-only">(current)</span>
-                                </a>
-                            </li>
-                        </c:when>
-                        <c:otherwise>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#{item.url}">#{item.title}</a>
-                            </li>
-                        </c:otherwise>
-                    </c:choose>
+            </div>
+        </nav>
+    </div>
 
-                </c:forEach>
-
-            </ul>
-        </div>
-    </nav>
 
 </h:form>
 
