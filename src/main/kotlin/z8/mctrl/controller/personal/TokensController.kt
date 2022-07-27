@@ -47,7 +47,7 @@ class TokensController : AbstractRDSTable<TokensController.PayoutsControllerRow>
     @PostConstruct
     fun init() {
         nv!!.available = DefaultNavController.PUBLIC_PAGES
-        nv.active = DefaultNavController.Page.PUBLIC_PAYOUTS
+        nv.active = DefaultNavController.Page.PUBLIC_TOKENS
 
         onSelect {
             //FacesContext.getCurrentInstance().partialViewContext.evalScripts.add("butter.modal.open('selectionDetails');")

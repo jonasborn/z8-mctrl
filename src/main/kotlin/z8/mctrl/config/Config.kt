@@ -2,6 +2,10 @@ package z8.mctrl.config
 
 import mu.KotlinLogging
 import org.apache.logging.log4j.LogManager
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.ExitCodeGenerator
+import org.springframework.boot.SpringApplication
+import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Component
 import z8.mctrl.db.RDS
 import java.io.File
@@ -12,7 +16,7 @@ import kotlin.system.exitProcess
 private val log = KotlinLogging.logger {}
 
 @Component
-class Config() {
+class Config @Autowired constructor(val ctx: ApplicationContext) {
 
     val logger = LogManager.getLogger()
 
@@ -44,13 +48,15 @@ class Config() {
                 val remaining = (props[key] as String).replace(value.toRegex(), "")
                 if (remaining.isNotEmpty()) {
                     logger.error("Required key {} does not match the required regex {}", key, value)
-                    exitProcess(1)
+                    SpringApplication.exit(ctx, ExitCodeGenerator { 1 })
+                    System.exit(1);
                 } else {
                     logger.debug("Key {} was accepted, matching {}", key, value)
                 }
             } else {
                 logger.error("Required key {}, matching {} was not found in config", key, value)
-                exitProcess(1)
+                SpringApplication.exit(ctx, ExitCodeGenerator { 1 })
+                System.exit(1);
             }
         }
         logger.info("Config accepted")

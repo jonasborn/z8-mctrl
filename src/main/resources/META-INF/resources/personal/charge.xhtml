@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:b="http://butterfaces.org/components"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+>
+<h:body>
+
+
+    <ui:composition template="../template/default.xhtml">
+        <ui:define name="content">
+
+            <div class="jumbotron mb-3">
+                <h1 class="display-3">Your settings</h1>
+                <h2>Change what you want</h2>
+            </div>
+            <h:form id="formId">
+
+                <div class="card bg-secondary mb-3">
+                    <div class="card-header">PayPal</div>
+                    <div class="card-body">
+
+                        <f:event type="preRenderView" listener="#{ChargeController.ppp.post}" />
+                        <h2>Charge your account using PayPal</h2>
+
+                        <h:panelGroup id="paypalsuccess" layout="block" rendered="#{not empty param['token']}">
+                            <h1>Success</h1>
+                            <p>#{ChargeController.ppp.moneyWanted}€ were added to your account</p>
+                        </h:panelGroup>
+
+                        <h:panelGroup id="paypal" layout="block" rendered="#{empty param['token']}">
+
+                            <b:text id="input"
+                                    label="Money"
+                                    hideLabel="false"
+                                    value="#{ChargeController.ppp.moneyWanted}"
+                                    placeholder="How much?"
+                                    type="null"
+                                    pattern="null"
+                                    min="0"
+                                    max="20"
+                                    readonly="false"
+                                    required="false"
+                                    disabled="false"
+                                    autoFocus="false"
+                            >
+                                <f:ajax event="keyup" execute="input" render="fee"
+                                        listener="#{ChargeController.ppp.update}"/>
+
+                            </b:text>
+                        </h:panelGroup>
+
+                        <h:panelGroup id="fee" layout="block" rendered="#{empty param['token']}">
+
+                            <h3>Transaction fee from PayPal</h3>
+                            <p>#{ChargeController.ppp.fee}€</p>
+
+                            <h3>What you have to pay</h3>
+                            <p>#{ChargeController.ppp.moneyNeeded}€</p>
+
+                            <b:commandLink value="Zahlungspflichtig bestellen"
+                                           styleClass="btn btn-sm btn-primary"
+                                           ajaxDisableLinkOnRequest="true"
+                                           ajaxShowWaitingDotsOnRequest="false"
+                                           ajaxDisableRenderRegionsOnRequest="true"
+                                           action="#{ChargeController.ppp.create()}"
+                                           hreflang=""
+                            >
+                                <f:ajax render=":formId"/>
+                            </b:commandLink>
+
+                        </h:panelGroup>
+                    </div>
+                </div>
+            </h:form>
+        </ui:define>
+    </ui:composition>
+
+</h:body>
+
+</html>

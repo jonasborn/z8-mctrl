@@ -4,9 +4,11 @@ import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.apache.logging.log4j.core.config.Configurator
+import org.springframework.boot.ApplicationContextFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 import org.springframework.boot.runApplication
+import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.Import
 import z8.mctrl.server.StaticFiles
 
@@ -17,8 +19,10 @@ class App
 
 val logger: Logger = LogManager.getLogger()
 
+var ctx: ConfigurableApplicationContext? = null
+
 fun main(args: Array<String>) {
 
-    runApplication<App>(*args)
+    ctx = runApplication<App>(*args)
 
 }
