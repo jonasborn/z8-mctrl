@@ -6,6 +6,8 @@ import com.paypal.http.HttpResponse
 import com.paypal.orders.*
 import com.paypal.payments.AuthorizationsCaptureRequest
 import com.paypal.payments.Capture
+import com.paypal.payments.CapturesRefundRequest
+import com.paypal.payments.RefundRequest
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,6 +33,7 @@ class PayPalProvider @Autowired constructor(val config: Config, val flow: Flow, 
     var fee: Double = 0.00
     var moneyNeeded: Double = 0.00
 
+    var failed = false
 
     init {
         ppe = PayPalEnvironment.Sandbox(
@@ -60,15 +63,14 @@ class PayPalProvider @Autowired constructor(val config: Config, val flow: Flow, 
         val orderRequest = OrderRequest()
         orderRequest.checkoutPaymentIntent("AUTHORIZE")
 
+        // Flows are used to make sure, the money is added to the right user
         val successFlow = flow.pack(PayPalFlow(sessionController.getUser()!!.id, true))
         val failureFlow = flow.pack(PayPalFlow(sessionController.getUser()!!.id, false))
 
-        println(successFlow)
-
         val context = ApplicationContext().brandName("z8")
             .landingPage("BILLING")
-            .returnUrl("http://localhost:8080/personal/charge.xhtml?flow=$successFlow")
-            .cancelUrl("http://localhost:8080/personal/charge.xhtml?flow=$failureFlow")
+            .returnUrl("${config.string("external.url")}/personal/charge.xhtml?flow=$successFlow")
+            .cancelUrl("${config.string("external.url")}/personal/charge.xhtml?flow=$failureFlow")
             .shippingPreference("NO_SHIPPING")
         orderRequest.applicationContext(context)
 
@@ -113,17 +115,43 @@ class PayPalProvider @Autowired constructor(val config: Config, val flow: Flow, 
         return
     }
 
-    @PostConstruct
-    fun post() {
-        println("PC")
+    fun onLoad() {
         FacesContext.getCurrentInstance()?.externalContext?.requestParameterMap.let { map ->
-            map?.get("token")?.let {
-                approve(it)
+            map?.get("flow")?.let {
+                val possibleToken = map["token"]
+                if (possibleToken == null) {
+                    failed(it)
+                } else {
+                    approve(it, possibleToken)
+                }
+
             }
+
         }
     }
 
-    fun approve(id: String) {
+    fun failed(flowString: String) {
+        failed = true
+        //TODO FIND SOLUTION TO REFUND
+    }
+
+    fun refund(id: String) {
+        val request = CapturesRefundRequest(id)
+        request.prefer("return=representation")
+        request.requestBody(RefundRequest())
+        client!!.execute(request)
+    }
+
+    fun approve(id: String, flowString: String) {
+        val f = flow.unpack<PayPalFlow>(flowString)
+
+        if (f == null) {
+            logger.info("Unable to parse flow, starting refund")
+            failed = true
+            refund(id)
+            return
+        }
+
         val request = OrdersAuthorizeRequest(id)
         request.requestBody(OrderRequest())
         val captureOrderResponse: HttpResponse<Order> = client!!.execute(request)
@@ -161,5 +189,7 @@ class PayPalProvider @Autowired constructor(val config: Config, val flow: Flow, 
         println("Full response body:")
         System.out.println(response.result())
     }
+
+
 
 }

@@ -1,6 +1,7 @@
 package z8.mctrl.controller.session
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
 import z8.mctrl.db.RDS
 import z8.mctrl.jooq.tables.daos.UserDao
 import z8.mctrl.jooq.tables.pojos.UserObject
@@ -14,8 +15,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 
-@Named("SessionController")
-@ViewScoped
+@Component
 class SessionController {
 
     companion object {

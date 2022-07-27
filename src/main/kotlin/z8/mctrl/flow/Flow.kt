@@ -19,7 +19,7 @@ class Flow @Autowired constructor(val config: Config) {
 
     init {
         jasypt = StandardPBEStringEncryptor()
-        val password = config.get("flow.password")
+        val password = config.get("flow.secret")
         jasypt!!.setPassword(password)
         jasypt!!.setIvGenerator(RandomIvGenerator())
     }
@@ -33,7 +33,7 @@ class Flow @Autowired constructor(val config: Config) {
         }
     }
 
-    fun <T> unpack(s: String): ByteArray? {
+    fun <T> unpack(s: String): T? {
         return try {
             gson.fromJson(jasypt!!.decrypt(s), object : TypeToken<T>() {}.type)
         } catch (e: Exception) {

@@ -62,9 +62,14 @@ class Config @Autowired constructor(val ctx: ApplicationContext) {
         logger.info("Config accepted")
     }
 
+    @Deprecated("Replaced with string()")
     fun get(key: String): String? {
         if (!props!!.containsKey(key)) return null
         return props!!.getProperty(key)
+    }
+
+    fun string(key: String): String {
+        return get(key)!!
     }
 
     fun string(key: String, alternative: String): String {

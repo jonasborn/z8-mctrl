@@ -24,7 +24,7 @@
                     <div class="card-header">PayPal</div>
                     <div class="card-body">
 
-                        <f:event type="preRenderView" listener="#{ChargeController.ppp.post}" />
+                        <f:event type="preRenderView" listener="#{ChargeController.ppp.onLoad}" />
                         <h2>Charge your account using PayPal</h2>
 
                         <h:panelGroup id="paypalsuccess" layout="block" rendered="#{not empty param['token']}">
