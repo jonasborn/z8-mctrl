@@ -5,31 +5,28 @@ import org.apache.logging.log4j.Logger
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
-import org.redisson.api.RBlockingQueue
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import z8.mctrl.companion.payment.PaymentRequests
 import z8.mctrl.config.Config
-import z8.mctrl.db.KVS
 import z8.mctrl.db.RDS
-import z8.mctrl.jooq.tables.daos.InternalDeviceDao
+import z8.mctrl.event.CommunicationEvent
+import z8.mctrl.event.EventOrchestrator
+import z8.mctrl.handler.PaymentRequestAuthHandler
 import z8.proto.alpha.*
 import java.lang.Exception
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
-import java.util.*
 import java.util.function.Consumer
 import javax.annotation.PostConstruct
-import kotlin.Comparator
 import kotlin.collections.HashMap
-import kotlin.math.log
 
 
 @Component
 open class WSServer @Autowired constructor(
     val config: Config,
     val rds: RDS,
-    val paymentRequests: PaymentRequests
+    val eventOrchestrator: EventOrchestrator,
 
 ) : WebSocketServer(InetSocketAddress(config.int("ws.port", 8992))) {
 
@@ -67,6 +64,8 @@ open class WSServer @Autowired constructor(
     private val onMessageListeners: HashMap<String, Consumer<Pair<WSSocket, ClientMessage>>> = hashMapOf()
     private val onCloseListeners: HashMap<String, Consumer<WSSocket>> = hashMapOf()
 
+    private val connections: HashMap<String, WSSocket> = hashMapOf()
+
     @PostConstruct
     fun postConstruct() {
         this.start()
@@ -78,7 +77,7 @@ open class WSServer @Autowired constructor(
         logger.debug("Registered onOpen handler {}", n)
     }
 
-    fun onMessage(vararg name: Any, cons: Consumer<Pair<WSSocket, ClientMessage>>) {
+    public fun onMessage(vararg name: Any, cons: Consumer<Pair<WSSocket, ClientMessage>>) {
         val n = name.joinToString("-")
         onMessageListeners[n] = cons
         logger.debug("Registered onMessage handler {}", n)
@@ -125,16 +124,18 @@ open class WSServer @Autowired constructor(
         if (conn != null && message != null) {
             try {
                 logger.debug("Message received")
-                val cm = UnPacker.unpack(conn, message)
+                val cm = UnPacker.unpack(conn, message) //TODO GET THE AUTH STUFF OUT THERE!
 
                 if (cm != null) {
-                    onMessageListeners.forEach {
-                        try {
-                            it.value.accept(Pair(WSSocket(this, conn), cm))
-                        } catch (e: Exception) {
-                            logger.warn("Handler {} failed", it.key, e)
-                        }
-                    }
+                    val ce = CommunicationEvent(WSSocket(this, conn), cm)
+                    eventOrchestrator.notify(ce)
+//                    onMessageListeners.forEach {
+//                        try {
+//                            it.value.accept(Pair(WSSocket(this, conn), cm))
+//                        } catch (e: Exception) {
+//                            logger.warn("Handler {} failed", it.key, e)
+//                        }
+//                    }
                 }
 
             } catch (e: Throwable) {
@@ -147,6 +148,10 @@ open class WSServer @Autowired constructor(
         logger.warn("Direct string message received and rejected")
     }
 
+    fun send(externalDeviceId: String, sm: ServerMessage, secret: String) {
+        connections[externalDeviceId]?.sendWithSecret(sm, secret)
+    }
+
     override fun onError(conn: WebSocket?, e: Exception?) {
         logger.warn("Error happened", e)
     }
@@ -154,9 +159,6 @@ open class WSServer @Autowired constructor(
     override fun onStart() {
         logger.info("Starting Websocket server")
 
-        onMessage("PaymentRequestsMessageHandler") {
-            paymentRequests.onMessage(it.first, it.second)
-        }
     }
 
 }

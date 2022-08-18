@@ -77,6 +77,24 @@
                             </div>
                             <ui:include src="../template/twofa-block.xhtml"/>
 
+                            <div class="d-flex justify-content-start">
+                                <c:forEach var="pageNumber" begin="1" end="#{TokensController.totalPages}">
+                                    <div class="mr-2">
+                                        <b:commandLink value="#{pageNumber}"
+                                                       styleClass="btn btn-primary #{(pageNumber == TokensController.page) ? 'active' : ''}"
+                                                       ajaxDisableLinkOnRequest="true"
+                                                       ajaxShowWaitingDotsOnRequest="false"
+                                                       ajaxDisableRenderRegionsOnRequest="true"
+                                                       action="#{TokensController.changePage(pageNumber)}"
+                                                       hreflang=""
+                                                       rendered="true"
+                                        >
+                                            <f:ajax render=":formId"/>
+                                        </b:commandLink>
+                                    </div>
+                                </c:forEach>
+                            </div>
+
                         </h:form>
 
 

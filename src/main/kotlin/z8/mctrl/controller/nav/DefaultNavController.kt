@@ -39,7 +39,7 @@ class DefaultNavController {
         TERMINAL_PAYMENTS("Payments", "/terminal/payments.xhtml"),
         TERMINAL_DEPOSITS("Deposits", "/terminal/deposits.xhtml"),
         TERMINAL_PAYOUTS("Payouts", "/terminal/payouts.xhtml"),
-        TERMINAL_CHARGE("Charge", "/terminal/charges.xhtml"),
+        TERMINAL_CHARGE("Charge", "/terminal/charge.xhtml"),
         TERMINAL_SETTINGS("Setting", "/terminal/settings.xhtml"),
 
         PUBLIC_HOME("Home", "/personal/index.xhtml"),
@@ -47,7 +47,7 @@ class DefaultNavController {
         PUBLIC_DEPOSITS("Deposits", "/personal/deposits.xhtml"),
         PUBLIC_PAYOUTS("Payouts", "/personal/payouts.xhtml"),
         PUBLIC_TOKENS("Tokens", "/personal/tokens.xhtml"),
-        PUBLIC_CHARGE("Charge", "/personal/charges.xhtml"),
+        PUBLIC_CHARGE("Charge", "/personal/charge.xhtml"),
         PUBLIC_SETTINGS("Setting", "/personal/settings.xhtml")
 
     }

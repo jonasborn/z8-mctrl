@@ -1,9 +1,10 @@
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+
 import org.mockito.Mockito
-import org.mockito.kotlin.*
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import z8.mctrl.companion.payment.PaymentRequests
-import z8.mctrl.server.WSServer
+
 
 class CheckInternalDeviceListener {
 

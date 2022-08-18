@@ -49,7 +49,7 @@ class PayPalProvider @Autowired constructor(val config: Config, val flow: Flow, 
 
     fun update() {
         fee = calculateFee(moneyWanted)
-        moneyNeeded = moneyWanted + fee
+        moneyNeeded = BigDecimal(moneyWanted + fee).setScale(2, RoundingMode.HALF_EVEN).toDouble()
     }
 
     fun createReturnUrl() {
@@ -59,6 +59,11 @@ class PayPalProvider @Autowired constructor(val config: Config, val flow: Flow, 
     class PayPalFlow(val user: String, val success: Boolean)
 
     fun create() {
+
+        if (moneyNeeded < 1) {
+
+
+        }
 
         val orderRequest = OrderRequest()
         orderRequest.checkoutPaymentIntent("AUTHORIZE")
@@ -95,7 +100,7 @@ class PayPalProvider @Autowired constructor(val config: Config, val flow: Flow, 
 
         val response: HttpResponse<Order> = client!!.execute(request)
 
-        if (response.statusCode() === 201) {
+        if (response.statusCode() == 201) {
             println("Order with Complete Payload: ")
             println("Status Code: " + response.statusCode())
             println("Status: " + response.result().status())

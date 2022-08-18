@@ -24,12 +24,25 @@
                     <div class="card-header">PayPal</div>
                     <div class="card-body">
 
-                        <f:event type="preRenderView" listener="#{ChargeController.ppp.onLoad}" />
+                        <f:event type="preRenderView" listener="#{ChargeController.ppp.onLoad}"/>
                         <h2>Charge your account using PayPal</h2>
 
                         <h:panelGroup id="paypalsuccess" layout="block" rendered="#{not empty param['token']}">
                             <h1>Success</h1>
                             <p>#{ChargeController.ppp.moneyWanted}€ were added to your account</p>
+                        </h:panelGroup>
+
+                        <h:panelGroup id="amountWarning">
+                            <h:panelGroup rendered="#{ChargeController.ppp.moneyWanted lt 1}">
+                                <div class="alert alert-danger mb-3">
+                                    Please select at least 1€
+                                </div>
+                            </h:panelGroup>
+                            <!--<h:panelGroup rendered="#{ChargeController.ppp.moneyWanted gt 20}">
+                                <div class="alert alert-danger mb-3">
+                                    <strong>Oh snap!</strong> Only max. 20€ per account are allowed at the moment
+                                </div>
+                            </h:panelGroup>-->
                         </h:panelGroup>
 
                         <h:panelGroup id="paypal" layout="block" rendered="#{empty param['token']}">
@@ -40,15 +53,12 @@
                                     value="#{ChargeController.ppp.moneyWanted}"
                                     placeholder="How much?"
                                     type="null"
-                                    pattern="null"
-                                    min="0"
-                                    max="20"
                                     readonly="false"
                                     required="false"
                                     disabled="false"
                                     autoFocus="false"
                             >
-                                <f:ajax event="keyup" execute="input" render="fee"
+                                <f:ajax event="keyup" execute="input" render="fee amountWarning"
                                         listener="#{ChargeController.ppp.update}"/>
 
                             </b:text>
@@ -63,7 +73,7 @@
                             <p>#{ChargeController.ppp.moneyNeeded}€</p>
 
                             <b:commandLink value="Zahlungspflichtig bestellen"
-                                           styleClass="btn btn-sm btn-primary"
+                                           styleClass="btn btn-primary"
                                            ajaxDisableLinkOnRequest="true"
                                            ajaxShowWaitingDotsOnRequest="false"
                                            ajaxDisableRenderRegionsOnRequest="true"

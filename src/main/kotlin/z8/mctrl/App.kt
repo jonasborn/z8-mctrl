@@ -1,10 +1,7 @@
 package z8.mctrl
 
-import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import org.apache.logging.log4j.core.config.Configurator
-import org.springframework.boot.ApplicationContextFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 import org.springframework.boot.runApplication
@@ -24,5 +21,4 @@ var ctx: ConfigurableApplicationContext? = null
 fun main(args: Array<String>) {
 
     ctx = runApplication<App>(*args)
-
 }
