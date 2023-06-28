@@ -2,6 +2,8 @@
 z8-mctrl, also known as zero eight mission control, is the main control center
 of the zero eight payment system.
 
+The project is currently unmaintained - lack of practical usage. As this still is a interesting base for a stable and secure platform, I am publishing, even when still unfinished. z8-sat (the payment devices) will be published soon.
+
 # Structure
 
 ## Language
